@@ -1,0 +1,11 @@
+{
+	"version" : 2,
+	"name" : "alice_test",
+
+	"builds" : [
+		{
+			"src" : "./src/*.js",
+			"use" : "@now/node-server"
+		}
+	]
+}
