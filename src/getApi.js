@@ -1,7 +1,7 @@
-const request = require('request')
-const fs = require('fs')
+const request = require('request');
+const fs = require('fs');
 
-const URL = 'https://www.hse.ru/api/education/program_discounts'
+const URL = 'https://www.hse.ru/api/education/program_discounts';
 
 // скачиваем .json файл с программами ВШЭ 
 request(URL, (err, res, body) => {
@@ -12,6 +12,5 @@ request(URL, (err, res, body) => {
         if(err)
             throw err
     })
- //   console.log(res.body)
 })
 

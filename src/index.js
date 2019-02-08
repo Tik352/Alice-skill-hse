@@ -5,8 +5,6 @@ const { Alice, Reply, Stage, Scene } = require('yandex-dialogs-sdk');
 // импортируем необходимые .json файлы
 // с данными
 const dialogs = require('./../data/dialogs.json'); // дерево диалогов
-const programs = require('./../data/programfull.json'); // список програм и факультетов
-
 const program_discounts = require('./../data/program_discounts.json');
 
 
@@ -45,15 +43,17 @@ function getPrograms(city) {
   let correct = '';
 
   for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
+    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
+       item_index++) {
       if(program_discounts.programs[program_index].items[item_index].campus_title === city) {
-        correct += (program_discounts.programs[program_index].title) +"\n";
+        correct += (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
         break;
       }
     }
   }
   return correct;
 }
+
 console.log(getPrograms(dialogs.campuse.moscow[0]))
 //--------END SUPPORT FUNCTIONS------------------------------------------------
 
@@ -61,8 +61,6 @@ console.log(getPrograms(dialogs.campuse.moscow[0]))
 
 //--------CAMPUSE SCENE--------------------------------------------------------
 
-const EXTRA_PARAMS = {
-};
 
 atCampuseChoosing.command(dialogs.campuse.moscow, ctx => {
   user_info.campus = dialogs.campuse.moscow[0];
