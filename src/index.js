@@ -2,8 +2,11 @@
 // импортируемые модули и файлы для дальнейшей работы навыка
 const { Alice, Reply, Stage, Scene } = require('yandex-dialogs-sdk')
 
-var dialogs = require('./../data/dialogs.json')
-var programs = require('./../data/programfull.json')
+// импортируем необходимые .json файлы
+// с данными
+var dialogs = require('./../data/dialogs.json') // дерево диалогов
+var programs = require('./../data/programfull.json') // список програм и факультетов
+
 // END объявление импортируемых модулей
 
 
@@ -15,6 +18,7 @@ var campuse = "";
 
 const CAMPUSE_CSHOOSE = "CAMPUSE_CSHOOSE"
 const atCampuseChoosing = new Scene(CAMPUSE_CSHOOSE) // сцена, в которую попадает пользователь при выборе кампуса
+
 
 const EXAM_QUIZ = "EXAM_QUIZ"
 const atExamEquiz = new Scene(EXAM_QUIZ)
@@ -151,5 +155,4 @@ alice.any(ctx => {
 
 //--------END ALICE DIALOG ----------------------------------------------------
 
-//Ставим алису на прослушку 3001 порта
 const server = alice.listen(3001, '/')
