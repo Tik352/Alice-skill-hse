@@ -19,7 +19,7 @@ let user_info = {
   "campus" : "Москва",
   "chosen_faculties" : [
       {"id" : 0},
-      {"title":"loh"}
+      {"title":"non title"}
   ]
 };
 const CAMPUSE_CSHOOSE = "CAMPUSE_CSHOOSE";
@@ -41,12 +41,12 @@ const atProgramChoose = new Scene(PROGRAM_CHOOSE);
 // Возвращает массив программ, имеющихся в выбранном кампусе
 function getPrograms(city) {
   let correct = '';
-
+  let index = 0;
   for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
     for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
        item_index++) {
       if(program_discounts.programs[program_index].items[item_index].campus_title === city) {
-        correct += (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
+        correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
         break;
       }
     }
@@ -54,7 +54,9 @@ function getPrograms(city) {
   return correct;
 }
 
-console.log(getPrograms(dialogs.campuse.moscow[0]))
+console.log(getPrograms(dialogs.campuse.saint_pt[0]))
+//console.log(getPrograms("Нижний:\n\n"+dialogs.campuse.nizniy_novg[0]))
+
 //--------END SUPPORT FUNCTIONS------------------------------------------------
 
 
@@ -62,29 +64,15 @@ console.log(getPrograms(dialogs.campuse.moscow[0]))
 //--------CAMPUSE SCENE--------------------------------------------------------
 
 
-atCampuseChoosing.command(dialogs.campuse.moscow, ctx => {
-  user_info.campus = dialogs.campuse.moscow[0];
-  ctx.enter(EXAM_QUIZ);
-  return Reply.text(dialogs.do_u_know_exam_res.phrase_1)
-});
+let cities = dialogs.campuse.moscow
+  .concat(dialogs.campuse.saint_pt
+  .concat(dialogs.campuse.nizniy_novg.concat(dialogs.campuse.perm)))
 
-atCampuseChoosing.command(dialogs.campuse.saint_pt, ctx => {
-  user_info.campus = dialogs.campuse.saint_pt[0];
+atCampuseChoosing.command(cities, ctx=> {
+  user_info.campus = ctx.data.request.command;
   ctx.enter(EXAM_QUIZ);
-  return Reply.text(dialogs.do_u_know_exam_res.phrase_1)
-});
-
-atCampuseChoosing.command(dialogs.campuse.nizniy_novg, ctx => {
-  user_info.campus = dialogs.campuse.nizniy_novg[0];
-  ctx.enter(EXAM_QUIZ);
-  return Reply.text(dialogs.do_u_know_exam_res.phrase_1)
-});
-
-atCampuseChoosing.command(dialogs.campuse.perm, ctx => {
-  user_info.campus = dialogs.campuse.perm;
-  ctx.enter(EXAM_QUIZ);
-  return Reply.text(dialogs.do_u_know_exam_res.phrase_1)
-});
+  return Reply.text(dialogs.do_u_know_exam_res.phrase_1);
+})
 
 atCampuseChoosing.any(ctx => {
   return Reply.text('Не слышала о таком городе...')
