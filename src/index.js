@@ -10,7 +10,7 @@ const program_discounts = require('./../data/program_discounts.json');
 
 // END объявление импортируемых модулей
 
-
+//kek
 // Объявление констант
 const alice = new Alice();
 const alice_stage = new Stage();
