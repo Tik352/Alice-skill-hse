@@ -17,11 +17,15 @@ const alice_stage = new Stage();
 
 let user_info = {
   "campus" : "Москва",
+  "program": "nan",
+  "program_id": 0,
   "chosen_faculties" : [
       {"id" : 0},
       {"title":"non title"}
   ]
 };
+
+
 const CAMPUSE_CSHOOSE = "CAMPUSE_CSHOOSE";
 const atCampuseChoosing = new Scene(CAMPUSE_CSHOOSE); // сцена, в которую попадает пользователь при выборе кампуса
 
@@ -45,7 +49,7 @@ function getPrograms(city) {
   for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
     for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
        item_index++) {
-      if(program_discounts.programs[program_index].items[item_index].campus_title === city) {
+      if(program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === city.toLowerCase()) {
         correct.push((program_discounts.programs[program_index].title).match('[а-яА-Я ]+')[0]);
        // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
         break;
@@ -55,8 +59,22 @@ function getPrograms(city) {
   return correct;
 }
 
-console.log(getPrograms(dialogs.campuse.moscow[0]))
-//console.log(getPrograms("Нижний:\n\n"+dialogs.campuse.nizniy_novg[0]))
+function getFaculties(city) {
+  let correct = [];
+  let index = 0;
+  for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
+       item_index++) {
+      if(program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase())) {
+        correct.push((program_discounts.programs[program_index].items[item_index].faculty));
+       // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
+      }
+    }
+  }
+  return correct;
+}
+//console.log(getPrograms(dialogs.campuse.moscow[0]));
+console.log(getFaculties("Архитектура").toString());
 
 //--------END SUPPORT FUNCTIONS------------------------------------------------
 
@@ -105,14 +123,23 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
 
 atProgramChoose.command('го', ctx => {
-  return Reply.text("Вот",
+  return Reply.text("Прошу, вот список направлений в вашем кампусе:",
   {
-    buttons: getPrograms(user_info.campus)
-    
+    buttons: getPrograms(user_info.campus).concat("СМЕНИТЬ КАМПУС")
   })
 });
+
+
+atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
+  user_info.program = ctx.data.request.command;
+  let faculties = getFaculties(user_info.program);
+  return Reply.text(ctx.data.request.command+"? Отлично, вот список факультетов в данном направлении:\n"+
+  "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
+    buttons:faculties
+  });
+})
 atProgramChoose.any(ctx => {
-  return Reply.text("Вы уверены, что такие направления есть в выбранном кампусе?")
+  return Reply.text("Вы уверены, что такие направления есть в выбранном кампусе?");
 });
 
 //---------END PROGRAM CHOOSE SCENE---------------------------------------
@@ -157,12 +184,14 @@ alice.command(dialogs.welcome.answer_neg, ctx => {
   return Reply.text(dialogs.welcome.phrase_3, {
     "buttons": [
       {
-          "title": "Надпись на кнопке",
+          "title": "Перейти на сайт НИУ ВШЭ",
           "payload": {},
-          "url": "https://example.com/",
+          "url": "https://hse.ru/",
           "hide": false
       }
-  ]
+  ],
+  end_session: false
+
   })
 });
 
