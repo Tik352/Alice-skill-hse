@@ -1,6 +1,6 @@
 
 // импортируемые модули и файлы для дальнейшей работы навыка
-const { Alice, Reply, Stage, Scene } = require('yandex-dialogs-sdk');
+const { Alice, Reply, Stage, Scene, Markup } = require('yandex-dialogs-sdk');
 
 // импортируем необходимые .json файлы
 // с данными
@@ -40,13 +40,14 @@ const atProgramChoose = new Scene(PROGRAM_CHOOSE);
 
 // Возвращает массив программ, имеющихся в выбранном кампусе
 function getPrograms(city) {
-  let correct = '';
+  let correct = [];
   let index = 0;
   for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
     for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
        item_index++) {
       if(program_discounts.programs[program_index].items[item_index].campus_title === city) {
-        correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
+        correct.push((program_discounts.programs[program_index].title).match('[а-яА-Я ]+')[0]);
+       // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
         break;
       }
     }
@@ -54,19 +55,20 @@ function getPrograms(city) {
   return correct;
 }
 
-console.log(getPrograms(dialogs.campuse.saint_pt[0]))
+console.log(getPrograms(dialogs.campuse.moscow[0]))
 //console.log(getPrograms("Нижний:\n\n"+dialogs.campuse.nizniy_novg[0]))
 
 //--------END SUPPORT FUNCTIONS------------------------------------------------
 
 
 
-//--------CAMPUSE SCENE--------------------------------------------------------
+//--------  E--------------------------------------------------------
 
 
 let cities = dialogs.campuse.moscow
   .concat(dialogs.campuse.saint_pt
-  .concat(dialogs.campuse.nizniy_novg.concat(dialogs.campuse.perm)))
+  .concat(dialogs.campuse.nizniy_novg
+  .concat(dialogs.campuse.perm)))
 
 atCampuseChoosing.command(cities, ctx=> {
   user_info.campus = ctx.data.request.command;
@@ -91,6 +93,7 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_pos, ctx => {
 
 atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
   ctx.enter(PROGRAM_CHOOSE);
+  
   return Reply.text(dialogs.choose_program.phrase_1)
 });
 
@@ -102,7 +105,11 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
 
 atProgramChoose.command('го', ctx => {
-  return Reply.text(getPrograms(user_info.campus).toString())
+  return Reply.text("Вот",
+  {
+    buttons: getPrograms(user_info.campus)
+    
+  })
 });
 atProgramChoose.any(ctx => {
   return Reply.text("Вы уверены, что такие направления есть в выбранном кампусе?")
@@ -122,10 +129,12 @@ alice.use(alice_stage.getMiddleware());
 
 // Базовые реплики Алисы, позволяющие ввести пользователя в диалог. 
 
-alice.command('', ctx => {
+alice.command('', ctx => { 
   return Reply.text(dialogs.welcome.phrase_1, {
     tts: dialogs.welcome.phrase_1,
-    buttons: [dialogs.welcome.answer_pos[0], dialogs.welcome.answer_neg[0]]
+    buttons: [Markup.button({title: dialogs.welcome.answer_pos[0], hide: false}),
+              Markup.button({title: dialogs.welcome.answer_neg[0], hide: true})
+    ]
   })
 });
 
@@ -135,7 +144,8 @@ alice.command('', ctx => {
 alice.command(dialogs.welcome.answer_pos, ctx => {
   ctx.enter(CAMPUSE_CSHOOSE);
   return Reply.text(dialogs.welcome.phrase_2, {
-    tts: "Отлично",
+    // ВОЗМОЖНО НЕ СРАБОТАЕТ!!!
+    tts: dialogs.welcome.answer_pos,
     buttons: [dialogs.campuse.moscow[0], dialogs.campuse.saint_pt[0],
     dialogs.campuse.nizniy_novg[0], dialogs.campuse.perm]
   })
@@ -144,12 +154,21 @@ alice.command(dialogs.welcome.answer_pos, ctx => {
 // В случае негативного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
 alice.command(dialogs.welcome.answer_neg, ctx => {
-  return Reply.text(dialogs.welcome.phrase_3)
+  return Reply.text(dialogs.welcome.phrase_3, {
+    "buttons": [
+      {
+          "title": "Надпись на кнопке",
+          "payload": {},
+          "url": "https://example.com/",
+          "hide": false
+      }
+  ]
+  })
 });
 
 // В случае неопределенного ответа 
 alice.any(ctx => {
-  return Reply.text('Мне сложно понять вас')
+  return Reply.text('Не понимаю, чего вы хотите')
 });
 
 //--------END ALICE DIALOG ----------------------------------------------------

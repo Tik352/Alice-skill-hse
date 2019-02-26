@@ -1,10 +1,10 @@
 {
 	"version" : 2,
-	"name" : "alice_test",
+	"name" : "Alice-skill-hse",
 
 	"builds" : [
 		{
-			"src" : "./src/*.js",
+			"src" : "/src/*.js",
 			"use" : "@now/node-server"
 		}
 	]

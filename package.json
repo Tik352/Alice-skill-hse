@@ -1,7 +1,7 @@
 {
-  "name": "alice_test",
+  "name": "Alice-skill-hse",
   "version": "1.0.0",
-  "description": "Alice skill",
+  "description": "Alice skill for HSE university",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
