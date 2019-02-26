@@ -24,12 +24,6 @@ let user_info = {
       {"title":"non title"}
   ]
 };
-let faculty = { 
-  title: "",
-  id: 0,
-  cost: 0,
-  href: ""
-};
 
 
 const CAMPUSE_CSHOOSE = "CAMPUSE_CSHOOSE";
@@ -151,7 +145,7 @@ atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
   
   return Reply.text(ctx.data.request.command+"? Отлично, вот список факультетов в данном направлении:\n"+
   "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
-    buttons:getFaculties(user_info.program, user_info.campus)
+    buttons: faculties.map(el=>el.title)
   });
 })
 
@@ -163,7 +157,7 @@ atProgramChoose.any(ctx => {
   console.log("Выбранный факультет: " + ctx.data.request.command);
   console.log("Проверка на наличие факультета: "+faculties.map(el=>el.title).includes(ctx.data.request.command));
   
-  return Reply.text(ctx.data.request.command+"? Я о таком никогда не слышала");
+  return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
 });
 
 //---------END PROGRAM CHOOSE SCENE---------------------------------------
