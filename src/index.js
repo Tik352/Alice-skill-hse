@@ -24,6 +24,12 @@ let user_info = {
       {"title":"non title"}
   ]
 };
+let faculty = { 
+  title: "",
+  id: 0,
+  cost: 0,
+  href: ""
+};
 
 
 const CAMPUSE_CSHOOSE = "CAMPUSE_CSHOOSE";
@@ -36,6 +42,9 @@ const atExamEquiz = new Scene(EXAM_QUIZ);
 
 const PROGRAM_CHOOSE = "PROGRAM_CHOOSE";
 const atProgramChoose = new Scene(PROGRAM_CHOOSE);
+
+const FACULTY_CHOOSE = "FACULTY_CHOOSE";
+const atFacultyChoose = new Scene(FACULTY_CHOOSE);
 // END объявление констант
 
 
@@ -61,21 +70,22 @@ function getPrograms(city) {
 
 function getFaculties(city, from) {
   let correct = [];
-  let index = 0;
   for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
-       item_index++) {
+    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
       if(program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase()) &&
         program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === from.toLowerCase()) {
-        correct.push(program_discounts.programs[program_index].items[item_index].faculty);
-       // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
+        correct.push({
+          title: program_discounts.programs[program_index].items[item_index].title,
+          id:  program_discounts.programs[program_index].items[item_index].id,
+          cost:  program_discounts.programs[program_index].items[item_index].cost,
+          href:  program_discounts.programs[program_index].items[item_index].href
+        });
       }
     }
   }
   return correct;
 }
-//console.log(getPrograms(dialogs.campuse.moscow[0]));
-console.log(getFaculties("Изобразительное искусство и прикладные виды искусств", "Москва").toString());
+console.log(getFaculties("Информатика и вычислительная техника", "Москва").map(element =>  element.title));
 
 //--------END SUPPORT FUNCTIONS------------------------------------------------
 
@@ -131,20 +141,50 @@ atProgramChoose.command('го', ctx => {
 });
 
 
+let faculties = []
 
 atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
   user_info.program = ctx.data.request.command;
-  let faculties = getFaculties(user_info.program);
+  faculties = getFaculties(user_info.program, user_info.campus);
+
+  //ctx.enter(FACULTY_CHOOSE);
+  
   return Reply.text(ctx.data.request.command+"? Отлично, вот список факультетов в данном направлении:\n"+
   "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
-    buttons:faculties
+    buttons:getFaculties(user_info.program, user_info.campus)
   });
 })
+
+atProgramChoose.command(faculties.map(el=>el.title), ctx=> {
+  return Reply.text(ctx.data.request.command+"? Отличный выбор!");
+})
 atProgramChoose.any(ctx => {
-  return Reply.text("Вы уверены, что такие направления есть в выбранном кампусе?");
+  console.log("Список факультетов:\n"+faculties.map(el=>el.title));
+  console.log("Выбранный факультет: " + ctx.data.request.command);
+  console.log("Проверка на наличие факультета: "+faculties.map(el=>el.title).includes(ctx.data.request.command));
+  
+  return Reply.text(ctx.data.request.command+"? Я о таком никогда не слышала");
 });
 
 //---------END PROGRAM CHOOSE SCENE---------------------------------------
+
+
+//---------FACULTY CHOOSE SCENE--------------------------------------------
+
+
+atFacultyChoose.command(faculties, ctx => {
+  
+  return Reply.text("Класс!");
+})
+
+atFacultyChoose.any(ctx => {
+  return Reply.text("О чем вы вообще!!!");
+})
+
+
+
+//---------END FACULTY CHOOSE SCENE---------------------------------------
+
 
 
 //---------ALICE DIALOGS--------------------------------------------------
@@ -152,7 +192,7 @@ atProgramChoose.any(ctx => {
 alice_stage.addScene(atCampuseChoosing);
 alice_stage.addScene(atExamEquiz);
 alice_stage.addScene(atProgramChoose);
-
+alice_stage.addScene(atFacultyChoose);
 alice.use(alice_stage.getMiddleware());
 
 
