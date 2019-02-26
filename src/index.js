@@ -59,14 +59,15 @@ function getPrograms(city) {
   return correct;
 }
 
-function getFaculties(city) {
+function getFaculties(city, from) {
   let correct = [];
   let index = 0;
   for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
     for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
        item_index++) {
-      if(program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase())) {
-        correct.push((program_discounts.programs[program_index].items[item_index].faculty));
+      if(program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase()) &&
+        program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === from.toLowerCase()) {
+        correct.push(program_discounts.programs[program_index].items[item_index].faculty);
        // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
       }
     }
@@ -74,7 +75,7 @@ function getFaculties(city) {
   return correct;
 }
 //console.log(getPrograms(dialogs.campuse.moscow[0]));
-console.log(getFaculties("Архитектура").toString());
+console.log(getFaculties("Изобразительное искусство и прикладные виды искусств", "Москва").toString());
 
 //--------END SUPPORT FUNCTIONS------------------------------------------------
 
@@ -125,9 +126,10 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
 atProgramChoose.command('го', ctx => {
   return Reply.text("Прошу, вот список направлений в вашем кампусе:",
   {
-    buttons: getPrograms(user_info.campus).concat("СМЕНИТЬ КАМПУС")
+    buttons: getPrograms(user_info.campus)
   })
 });
+
 
 
 atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
