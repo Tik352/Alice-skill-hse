@@ -77,10 +77,6 @@ function getFaculties(city, from) {
         program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === from.toLowerCase()) {
         correct.push(
           program_discounts.programs[program_index].items[item_index]
-          // title: program_discounts.programs[program_index].items[item_index].title,
-          // id:  program_discounts.programs[program_index].items[item_index].id,
-          // cost:  program_discounts.programs[program_index].items[item_index].cost,
-          // href:  program_discounts.programs[program_index].items[item_index].href
         );
       }
     }
@@ -251,7 +247,10 @@ atFacultyChoose.command(faculties.map(el=>el.title), ctx=> {
   
   return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n"
   +"Цена за обучение: "+chosen_one.cost+"\n\n"
-  +"Проходные баллы ЕГЭ:\n" + info.toString());
+  +"Язык: " +chosen_one.language+"\n\n"
+  +"Время обучения: "+chosen_one.period+"\n\n"
+  +"Проходные баллы ЕГЭ:\n" + info.toString(), 
+  { buttons : [{ title : "Перейти на сайт", payload: chosen_one, url : chosen_one.href, hide: true}]})
 })
 
 atFacultyChoose.any(ctx => {
