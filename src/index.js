@@ -25,6 +25,13 @@ let user_info = {
   ]
 };
 
+const EXAMS_GRADES = program_discounts.exams.grades;
+const EXAM_NAMES = program_discounts.exams.items;
+// ИНФА 122326228
+// ПИ 224767652
+
+
+
 
 const CAMPUSE_CSHOOSE = "CAMPUSE_CSHOOSE";
 const atCampuseChoosing = new Scene(CAMPUSE_CSHOOSE); // сцена, в которую попадает пользователь при выборе кампуса
@@ -68,116 +75,35 @@ function getFaculties(city, from) {
     for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
       if(program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase()) &&
         program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === from.toLowerCase()) {
-        correct.push({
-          title: program_discounts.programs[program_index].items[item_index].title,
-          id:  program_discounts.programs[program_index].items[item_index].id,
-          cost:  program_discounts.programs[program_index].items[item_index].cost,
-          href:  program_discounts.programs[program_index].items[item_index].href
-        });
+        correct.push(
+          program_discounts.programs[program_index].items[item_index]
+          // title: program_discounts.programs[program_index].items[item_index].title,
+          // id:  program_discounts.programs[program_index].items[item_index].id,
+          // cost:  program_discounts.programs[program_index].items[item_index].cost,
+          // href:  program_discounts.programs[program_index].items[item_index].href
+        );
       }
     }
   }
   return correct;
 }
-console.log(getFaculties("Информатика и вычислительная техника", "Москва").map(element =>  element.title));
+
+
+function getAllFaculties() {
+  let correct = [];
+  for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
+      correct.push(program_discounts.programs[program_index].items[item_index]);
+    }
+  }
+  return correct;
+}
+
+
+
+let faculties = getAllFaculties();
 
 //--------END SUPPORT FUNCTIONS------------------------------------------------
-
-
-
-//--------  E--------------------------------------------------------
-
-
-let cities = dialogs.campuse.moscow
-  .concat(dialogs.campuse.saint_pt
-  .concat(dialogs.campuse.nizniy_novg
-  .concat(dialogs.campuse.perm)))
-
-atCampuseChoosing.command(cities, ctx=> {
-  user_info.campus = ctx.data.request.command;
-  ctx.enter(EXAM_QUIZ);
-  return Reply.text(dialogs.do_u_know_exam_res.phrase_1);
-})
-
-atCampuseChoosing.any(ctx => {
-  return Reply.text('Не слышала о таком городе...')
-});
-
-
-//---------END CAMPUSE SCENE---------------------------------------------
-
-
-
-//---------EXAM QUIZ SCENE-----------------------------------------------
-
-atExamEquiz.command(dialogs.do_u_know_exam_res.answer_pos, ctx => {
-  return Reply.text("Данная ветвь диалога ещё не проработана")
-});
-
-atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
-  ctx.enter(PROGRAM_CHOOSE);
-  
-  return Reply.text(dialogs.choose_program.phrase_1)
-});
-
-
-
-//---------END EAXAM QUIZ SCENE-------------------------------------------
-
-
-//---------PROGRAM CHOOSE SCENE-------------------------------------------
-
-atProgramChoose.command('го', ctx => {
-  return Reply.text("Прошу, вот список направлений в вашем кампусе:",
-  {
-    buttons: getPrograms(user_info.campus)
-  })
-});
-
-
-let faculties = []
-
-atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
-  user_info.program = ctx.data.request.command;
-  faculties = getFaculties(user_info.program, user_info.campus);
-
-  //ctx.enter(FACULTY_CHOOSE);
-  
-  return Reply.text(ctx.data.request.command+"? Отлично, вот список факультетов в данном направлении:\n"+
-  "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
-    buttons: faculties.map(el=>el.title)
-  });
-})
-
-atProgramChoose.command(faculties.map(el=>el.title), ctx=> {
-  return Reply.text(ctx.data.request.command+"? Отличный выбор!");
-})
-atProgramChoose.any(ctx => {
-  console.log("Список факультетов:\n"+faculties.map(el=>el.title));
-  console.log("Выбранный факультет: " + ctx.data.request.command);
-  console.log("Проверка на наличие факультета: "+faculties.map(el=>el.title).includes(ctx.data.request.command));
-  
-  return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
-});
-
-//---------END PROGRAM CHOOSE SCENE---------------------------------------
-
-
-//---------FACULTY CHOOSE SCENE--------------------------------------------
-
-
-atFacultyChoose.command(faculties, ctx => {
-  
-  return Reply.text("Класс!");
-})
-
-atFacultyChoose.any(ctx => {
-  return Reply.text("О чем вы вообще!!!");
-})
-
-
-
-//---------END FACULTY CHOOSE SCENE---------------------------------------
 
 
 
@@ -235,6 +161,108 @@ alice.command(dialogs.welcome.answer_neg, ctx => {
 alice.any(ctx => {
   return Reply.text('Не понимаю, чего вы хотите')
 });
+
+
+
+//--------  E--------------------------------------------------------
+
+
+let cities = dialogs.campuse.moscow
+  .concat(dialogs.campuse.saint_pt
+  .concat(dialogs.campuse.nizniy_novg
+  .concat(dialogs.campuse.perm)))
+
+atCampuseChoosing.command(cities, ctx=> {
+  user_info.campus = ctx.data.request.command;
+  ctx.enter(EXAM_QUIZ);
+  return Reply.text(dialogs.do_u_know_exam_res.phrase_1);
+})
+
+atCampuseChoosing.any(ctx => {
+  return Reply.text('Не слышала о таком городе...')
+});
+
+
+//---------END CAMPUSE SCENE---------------------------------------------
+
+
+
+//---------EXAM QUIZ SCENE-----------------------------------------------
+
+atExamEquiz.command(dialogs.do_u_know_exam_res.answer_pos, ctx => {
+  return Reply.text("Данная ветвь диалога ещё не проработана")
+});
+
+atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
+  ctx.enter(PROGRAM_CHOOSE);
+  
+  return Reply.text(dialogs.choose_program.phrase_1)
+});
+
+
+
+//---------END EAXAM QUIZ SCENE-------------------------------------------
+
+
+//---------PROGRAM CHOOSE SCENE-------------------------------------------
+
+atProgramChoose.command('го', ctx => {
+  return Reply.text("Прошу, вот список направлений в вашем кампусе:",
+  {
+    buttons: getPrograms(user_info.campus)
+  })
+});
+
+
+
+atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
+  user_info.program = ctx.data.request.command;
+
+  faculties = getFaculties(user_info.program, user_info.campus);
+  
+  ctx.enter(FACULTY_CHOOSE);
+  
+  return Reply.text(ctx.data.request.command+"? Отлично, вот список факультетов в данном направлении:\n"+
+  "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
+    buttons: faculties.map(el=>el.title)
+  });
+})
+
+atProgramChoose.any(ctx => {
+ 
+  return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
+});
+
+//---------END PROGRAM CHOOSE SCENE---------------------------------------
+
+
+//---------FACULTY CHOOSE SCENE--------------------------------------------
+
+
+atFacultyChoose.command(faculties.map(el=>el.title), ctx=> {
+  let chosen_one = faculties.find(val=>val.title===ctx.data.request.command);
+  let exam_points = EXAMS_GRADES.filter(el=>el.program_id===chosen_one.id);
+  let info = "";
+  for(let i = 0; i < exam_points.length; i++)
+    for(let j = 0; j < EXAM_NAMES.length; j++)      
+      if(EXAM_NAMES[j].id === exam_points[i].id)
+        info += EXAM_NAMES[j].title + ": " + exam_points[i].grade+"\n";
+  
+  
+  return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n"
+  +"Цена за обучение: "+chosen_one.cost+"\n\n"
+  +"Проходные баллы ЕГЭ:\n" + info.toString());
+})
+
+atFacultyChoose.any(ctx => {
+  return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
+});
+
+
+
+//---------END FACULTY CHOOSE SCENE---------------------------------------
+
+
 
 //--------END ALICE DIALOG ----------------------------------------------------
 
