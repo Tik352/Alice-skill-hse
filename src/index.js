@@ -17,12 +17,12 @@ const alice = new Alice();
 const alice_stage = new Stage();
 
 let user_info = {
-  "campus" : "Москва",
+  "campus": "Москва",
   "program": "nan",
   "program_id": 0,
-  "chosen_faculties" : [
-      {"id" : 0},
-      {"title":"non title"}
+  "chosen_faculties": [
+    { "id": 0 },
+    { "title": "non title" }
   ]
 };
 
@@ -65,12 +65,12 @@ const atNewsChecking = new Scene(NEWS_CHECK);
 function getPrograms(city) {
   let correct = [];
   let index = 0;
-  for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
-       item_index++) {
-      if(program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === city.toLowerCase()) {
+  for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+    for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
+      item_index++) {
+      if (program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === city.toLowerCase()) {
         correct.push((program_discounts.programs[program_index].title).match('[а-яА-Я ]+')[0]);
-       // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
+        // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
         break;
       }
     }
@@ -80,9 +80,9 @@ function getPrograms(city) {
 
 function getFaculties(city, from) {
   let correct = [];
-  for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
-      if(program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase()) &&
+  for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+    for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
+      if (program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase()) &&
         program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === from.toLowerCase()) {
         correct.push(
           program_discounts.programs[program_index].items[item_index]
@@ -96,8 +96,8 @@ function getFaculties(city, from) {
 
 function getAllFaculties() {
   let correct = [];
-  for(let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for(let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
+  for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+    for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
       correct.push(program_discounts.programs[program_index].items[item_index]);
     }
   }
@@ -125,11 +125,11 @@ alice.use(alice_stage.getMiddleware());
 
 // Базовые реплики Алисы, позволяющие ввести пользователя в диалог. 
 
-alice.command('', ctx => { 
+alice.command('', ctx => {
   return Reply.text(dialogs.welcome.phrase_1, {
     tts: dialogs.welcome.phrase_1,
-    buttons: [Markup.button({title: "Информация о поступлении", hide: false}),
-              Markup.button({title: "Новости", hide: true})
+    buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
+    Markup.button({ title: "Новости", hide: true })
     ]
   })
 });
@@ -161,13 +161,13 @@ alice.command(dialogs.welcome.answer_neg, ctx => {
   return Reply.text(dialogs.welcome.phrase_3, {
     "buttons": [
       {
-          "title": "Перейти на сайт НИУ ВШЭ",
-          "payload": {},
-          "url": "https://hse.ru/",
-          "hide": false
+        "title": "Перейти на сайт НИУ ВШЭ",
+        "payload": {},
+        "url": "https://hse.ru/",
+        "hide": false
       }
-  ],
-  end_session: false
+    ],
+    end_session: false
 
   })
 });
@@ -185,19 +185,25 @@ alice.any(ctx => {
 
 let cities = dialogs.campuse.moscow
   .concat(dialogs.campuse.saint_pt
-  .concat(dialogs.campuse.nizniy_novg
-  .concat(dialogs.campuse.perm)))
+    .concat(dialogs.campuse.nizniy_novg
+      .concat(dialogs.campuse.perm)))
 
-atCampuseChoosing.command(cities, ctx=> {
+atCampuseChoosing.command(cities, ctx => {
   user_info.campus = ctx.data.request.command;
-  
-  if(!isForNews) {
+
+  if (!isForNews) {
     ctx.enter(EXAM_QUIZ);
-    return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Вернуться назад"]});
+    return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Вернуться назад"] });
   }
   ctx.enter(PROGRAM_CHOOSE);
-  return Reply.text(dialogs.choose_program.phrase_1, {buttons:getPrograms(user_info.campus)})
+  return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
 
+})
+
+atCampuseChoosing.command(/Назад/i, ctx => {
+  ctx.leave();
+
+  return Reply.text("Что вас интересует?");
 })
 
 atCampuseChoosing.any(ctx => {
@@ -217,16 +223,24 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_pos, ctx => {
 
 atExamEquiz.command('Вернуться назад', ctx => {
   ctx.enter(CAMPUSE_CSHOOSE);
-  
-  return Reply.text("Хотите сменить кампус?", {buttons: cities} );
+
+  return Reply.text("Хотите сменить кампус?", { buttons: cities });
 })
 atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
   ctx.enter(PROGRAM_CHOOSE);
 
-  return Reply.text(dialogs.choose_program.phrase_1, {buttons:getPrograms(user_info.campus)})
+  return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
 });
 
-atExamEquiz.any(ctx => { 
+atExamEquiz.command(/Назад/i, ctx => {
+  ctx.leave();
+  return Reply.text("Что вас интересует?", {
+    buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
+    Markup.button({ title: "Новости", hide: true })
+    ]
+  });
+})
+atExamEquiz.any(ctx => {
   return Reply.text("О чем вы?");
 })
 
@@ -237,21 +251,30 @@ atExamEquiz.any(ctx => {
 
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
 
-atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
+atProgramChoose.command(getPrograms(user_info.campus), ctx => {
   user_info.program = ctx.data.request.command;
 
   faculties = getFaculties(user_info.program, user_info.campus);
-  
+
   ctx.enter(FACULTY_CHOOSE);
-  
-  return Reply.text(ctx.data.request.command+"? Отлично, вот список факультетов в данном направлении:\n"+
-  "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
-    buttons: faculties.map(el=>el.title)
-  });
+
+  return Reply.text(ctx.data.request.command + "? Отлично, вот список факультетов в данном направлении:\n" +
+    "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
+      buttons: faculties.map(el => el.title)
+    });
 })
 
+atProgramChoose.command(/Назад/i, ctx => {
+  ctx.leave();
+  return Reply.text("Что вас интересует?", {
+    buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
+    Markup.button({ title: "Новости", hide: true })
+    ]
+  });
+});
+
 atProgramChoose.any(ctx => {
-  return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
+  return Reply.text(ctx.data.request.command + "? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
 });
 
 //---------END PROGRAM CHOOSE SCENE---------------------------------------
@@ -261,30 +284,30 @@ atProgramChoose.any(ctx => {
 
 let chosen_one;
 
-atFacultyChoose.command(faculties.map(el=>el.title), ctx=> {
+atFacultyChoose.command(faculties.map(el => el.title), ctx => {
 
-  chosen_one = faculties.find(val=>val.title===ctx.data.request.command);
+  chosen_one = faculties.find(val => val.title === ctx.data.request.command);
 
-  getlist(chosen_one.href, info => {    
+  getlist(chosen_one.href, info => {
     fs.writeFile('./data/news.json', JSON.stringify(info), (err, data) => {
-      if(err) 
+      if (err)
         throw err;
     })
   });
-  if(!isForNews) {
-    return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
-    {
-      buttons: [
-        "Цена за обучение",
-        "Время обучения",
-        "Количество Бюджетных и платных мест",
-        "Проходные баллы",
-        "Узнать последние новости"
-      ]
-    })
+  if (!isForNews) {
+    return Reply.text(ctx.data.request.command + "? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
+      {
+        buttons: [
+          "Цена за обучение",
+          "Время обучения",
+          "Количество Бюджетных и платных мест",
+          "Проходные баллы",
+          "Узнать последние новости"
+        ]
+      })
   }
-  
-  return Reply.text("Узнать о последних событиях на "+ chosen_one.title, {
+
+  return Reply.text("Узнать о последних событиях на " + chosen_one.title, {
     buttons: ["Давай", "Ненадо"]
   });
 })
@@ -292,64 +315,78 @@ atFacultyChoose.command(faculties.map(el=>el.title), ctx=> {
 atFacultyChoose.command(["Узнать последние новости", "давай"], ctx => {
   let news = fs.readFileSync('./data/news.json', 'utf-8');
   let jsonNews = JSON.parse(news);
-  
+
   let format_news = "";
 
-  for(let i = 1; i < jsonNews.length; i++) {
-    format_news += jsonNews[i].description+"\n"
-                  +"ссылка: "+ jsonNews[i].url+"\n\n\n";
+  for (let i = 1; i < jsonNews.length; i++) {
+    format_news += jsonNews[i].description + "\n"
+      + "ссылка: " + jsonNews[i].url + "\n\n\n";
   }
   return Reply.text(format_news);
 })
 
-atFacultyChoose.command("Цена за обучение", ctx=> {
-  return Reply.text("Цена за обучение на \""+chosen_one.title+"\": "+ chosen_one.cost,   {
+atFacultyChoose.command("Цена за обучение", ctx => {
+  return Reply.text("Цена за обучение на \"" + chosen_one.title + "\": " + chosen_one.cost, {
     buttons: [
       "Время обучения",
       "Количество Бюджетных и платных мест",
-      "Проходные баллы" 
+      "Проходные баллы",
+      "Узнать последние новости"
     ]
   });
 })
 
-atFacultyChoose.command("Время обучения", ctx=> {
-  return Reply.text("Время обучения на \""+chosen_one.title+"\": "+ chosen_one.period,   {
+atFacultyChoose.command("Время обучения", ctx => {
+  return Reply.text("Время обучения на \"" + chosen_one.title + "\": " + chosen_one.period, {
     buttons: [
       "Цена за обучение",
       "Количество Бюджетных и платных мест",
-      "Проходные баллы" 
+      "Проходные баллы",
+      "Узнать последние новости"
     ]
   });
 })
-atFacultyChoose.command("Проходные баллы", ctx=> {
+atFacultyChoose.command("Проходные баллы", ctx => {
   let info = "";
-  let exam_points = EXAMS_GRADES.filter(el=>el.program_id===chosen_one.id);
+  let exam_points = EXAMS_GRADES.filter(el => el.program_id === chosen_one.id);
 
-  for(let i = 0; i < exam_points.length; i++)
-    for(let j = 0; j < EXAM_NAMES.length; j++)      
-      if(EXAM_NAMES[j].id === exam_points[i].id)
-        info += EXAM_NAMES[j].title + ": " + exam_points[i].grade+"\n";
+  for (let i = 0; i < exam_points.length; i++)
+    for (let j = 0; j < EXAM_NAMES.length; j++)
+      if (EXAM_NAMES[j].id === exam_points[i].id)
+        info += EXAM_NAMES[j].title + ": " + exam_points[i].grade + "\n";
 
-  return Reply.text("Проходные баллы по ЕГЭ на \""+chosen_one.title+"\":\n "+ info.toString(),   {
+  return Reply.text("Проходные баллы по ЕГЭ на \"" + chosen_one.title + "\":\n " + info.toString(), {
     buttons: [
       "Цена за обучение",
       "Время обучения",
       "Количество Бюджетных и платных мест",
+      "Узнать последние новости"
     ]
   });
 })
 
 atFacultyChoose.command("Количество Бюджетных и платных мест", ctx => {
-  return Reply.text("а хер его знает",  {
+  return Reply.text("а хер его знает", {
     buttons: [
       "Цена за обучение",
       "Время обучения",
-      "Проходные баллы" 
+      "Проходные баллы",
+      "Узнать последние новости"
     ]
-  } );
+  });
+})
+
+atFacultyChoose.command(/Назад/i, ctx => {
+  ctx.leave();
+
+  return Reply.text("Что вас интересует?", {
+    buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
+    Markup.button({ title: "Новости", hide: true })
+    ]
+  });
 })
 atFacultyChoose.any(ctx => {
-  return Reply.text(ctx.data.request.command+"? Этого я не знаю");
+  return Reply.text(ctx.data.request.command + "? Этого я не знаю");
 });
 
 
