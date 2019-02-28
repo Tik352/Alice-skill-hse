@@ -1,7 +1,7 @@
 {
-  "name": "alice_test",
+  "name": "Alice-skill-hse",
   "version": "1.0.0",
-  "description": "Alice skill",
+  "description": "Alice skill for HSE university",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "request": "^2.88.0",
     "yandex-dialogs-sdk": "^2.0.6"
   }
