@@ -7,7 +7,8 @@ const { Alice, Reply, Stage, Scene, Markup } = require('yandex-dialogs-sdk');
 const dialogs = require('./../data/dialogs.json'); // дерево диалогов
 const program_discounts = require('./../data/program_discounts.json');
 
-
+const getlist = require('./getList');
+const fs = require('fs');
 // END объявление импортируемых модулей
 
 
@@ -24,6 +25,8 @@ let user_info = {
       {"title":"non title"}
   ]
 };
+
+let isForNews = false;
 
 const EXAMS_GRADES = program_discounts.exams.grades;
 const EXAM_NAMES = program_discounts.exams.items;
@@ -46,11 +49,17 @@ const atProgramChoose = new Scene(PROGRAM_CHOOSE);
 
 const FACULTY_CHOOSE = "FACULTY_CHOOSE";
 const atFacultyChoose = new Scene(FACULTY_CHOOSE);
+
+const NEWS_CHECK = "NEWS_CHECK";
+const atNewsChecking = new Scene(NEWS_CHECK);
 // END объявление констант
 
 
 
 //--------SUPPORT FUNCTIONS----------------------------------------------------
+
+// Возващает json объект с новостями
+
 
 // Возвращает массив программ, имеющихся в выбранном кампусе
 function getPrograms(city) {
@@ -109,6 +118,8 @@ alice_stage.addScene(atCampuseChoosing);
 alice_stage.addScene(atExamEquiz);
 alice_stage.addScene(atProgramChoose);
 alice_stage.addScene(atFacultyChoose);
+alice_stage.addScene(atNewsChecking);
+
 alice.use(alice_stage.getMiddleware());
 
 
@@ -118,7 +129,7 @@ alice.command('', ctx => {
   return Reply.text(dialogs.welcome.phrase_1, {
     tts: dialogs.welcome.phrase_1,
     buttons: [Markup.button({title: "Информация о поступлении", hide: false}),
-              Markup.button({title: dialogs.welcome.answer_neg[0], hide: true})
+              Markup.button({title: "Новости", hide: true})
     ]
   })
 });
@@ -136,6 +147,14 @@ alice.command("Информация о поступлении", ctx => {
   })
 });
 
+alice.command(/Новост[ия]*/i, ctx => {
+  isForNews = true;
+  ctx.enter(CAMPUSE_CSHOOSE);
+  return Reply.text("Выберити кампус и направление, новости из которых вы хотите узнать", {
+    buttons: [dialogs.campuse.moscow[0], dialogs.campuse.saint_pt[0],
+    dialogs.campuse.nizniy_novg[0], dialogs.campuse.perm]
+  });
+})
 // В случае негативного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
 alice.command(dialogs.welcome.answer_neg, ctx => {
@@ -172,8 +191,13 @@ let cities = dialogs.campuse.moscow
 atCampuseChoosing.command(cities, ctx=> {
   user_info.campus = ctx.data.request.command;
   
-  ctx.enter(EXAM_QUIZ);
-  return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Вернуться назад"]});
+  if(!isForNews) {
+    ctx.enter(EXAM_QUIZ);
+    return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Вернуться назад"]});
+  }
+  ctx.enter(PROGRAM_CHOOSE);
+  return Reply.text(dialogs.choose_program.phrase_1, {buttons:getPrograms(user_info.campus)})
+
 })
 
 atCampuseChoosing.any(ctx => {
@@ -227,7 +251,6 @@ atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
 })
 
 atProgramChoose.any(ctx => {
- 
   return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
 });
 
@@ -237,25 +260,46 @@ atProgramChoose.any(ctx => {
 //---------FACULTY CHOOSE SCENE--------------------------------------------
 
 let chosen_one;
+
 atFacultyChoose.command(faculties.map(el=>el.title), ctx=> {
+
   chosen_one = faculties.find(val=>val.title===ctx.data.request.command);
 
-  return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
-  {
-    buttons: [
-      "Цена за обучение",
-      "Время обучения",
-      "Количество Бюджетных и платных мест",
-      "Проходные баллы" 
-    ]
-  })
-  // return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n"
-  // +"Цена за обучение: "+chosen_one.cost+"\n\n"
-  // +"Язык: " +chosen_one.language+"\n\n"
-  // +"Время обучения: "+chosen_one.period+"\n\n"
-  // +"Количество Бюджетных/Платных мест"+chosen_one.positions+"\n\n"
-  // +"Проходные баллы ЕГЭ:\n" + info.toString(), 
-  // { buttons : [{ title : "Перейти на сайт", payload: chosen_one, url : chosen_one.href, hide: true}]})
+  getlist(chosen_one.href, info => {    
+    fs.writeFile('./data/news.json', JSON.stringify(info), (err, data) => {
+      if(err) 
+        throw err;
+    })
+  });
+  if(!isForNews) {
+    return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
+    {
+      buttons: [
+        "Цена за обучение",
+        "Время обучения",
+        "Количество Бюджетных и платных мест",
+        "Проходные баллы",
+        "Узнать последние новости"
+      ]
+    })
+  }
+  
+  return Reply.text("Узнать о последних событиях на "+ chosen_one.title, {
+    buttons: ["Давай", "Ненадо"]
+  });
+})
+
+atFacultyChoose.command(["Узнать последние новости", "давай"], ctx => {
+  let news = fs.readFileSync('./data/news.json', 'utf-8');
+  let jsonNews = JSON.parse(news);
+  
+  let format_news = "";
+
+  for(let i = 1; i < jsonNews.length; i++) {
+    format_news += jsonNews[i].description+"\n"
+                  +"ссылка: "+ jsonNews[i].url+"\n\n\n";
+  }
+  return Reply.text(format_news);
 })
 
 atFacultyChoose.command("Цена за обучение", ctx=> {
@@ -305,7 +349,7 @@ atFacultyChoose.command("Количество Бюджетных и платны
   } );
 })
 atFacultyChoose.any(ctx => {
-  return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
+  return Reply.text(ctx.data.request.command+"? Этого я не знаю");
 });
 
 
