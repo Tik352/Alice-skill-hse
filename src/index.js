@@ -117,7 +117,7 @@ alice.use(alice_stage.getMiddleware());
 alice.command('', ctx => { 
   return Reply.text(dialogs.welcome.phrase_1, {
     tts: dialogs.welcome.phrase_1,
-    buttons: [Markup.button({title: dialogs.welcome.answer_pos[0], hide: false}),
+    buttons: [Markup.button({title: "Информация о поступлении", hide: false}),
               Markup.button({title: dialogs.welcome.answer_neg[0], hide: true})
     ]
   })
@@ -126,7 +126,7 @@ alice.command('', ctx => {
 
 // В случае позитивного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
-alice.command(dialogs.welcome.answer_pos, ctx => {
+alice.command("Информация о поступлении", ctx => {
   ctx.enter(CAMPUSE_CSHOOSE);
   return Reply.text(dialogs.welcome.phrase_2, {
     // ВОЗМОЖНО НЕ СРАБОТАЕТ!!!
@@ -153,6 +153,7 @@ alice.command(dialogs.welcome.answer_neg, ctx => {
   })
 });
 
+
 // В случае неопределенного ответа 
 alice.any(ctx => {
   return Reply.text('Не понимаю, чего вы хотите')
@@ -170,8 +171,9 @@ let cities = dialogs.campuse.moscow
 
 atCampuseChoosing.command(cities, ctx=> {
   user_info.campus = ctx.data.request.command;
+  
   ctx.enter(EXAM_QUIZ);
-  return Reply.text(dialogs.do_u_know_exam_res.phrase_1);
+  return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Вернуться назад"]});
 })
 
 atCampuseChoosing.any(ctx => {
@@ -189,11 +191,20 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_pos, ctx => {
   return Reply.text("Данная ветвь диалога ещё не проработана")
 });
 
+atExamEquiz.command('Вернуться назад', ctx => {
+  ctx.enter(CAMPUSE_CSHOOSE);
+  
+  return Reply.text("Хотите сменить кампус?", {buttons: cities} );
+})
 atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
   ctx.enter(PROGRAM_CHOOSE);
-  
-  return Reply.text(dialogs.choose_program.phrase_1)
+
+  return Reply.text(dialogs.choose_program.phrase_1, {buttons:getPrograms(user_info.campus)})
 });
+
+atExamEquiz.any(ctx => { 
+  return Reply.text("О чем вы?");
+})
 
 
 
@@ -201,15 +212,6 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
 
 
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
-
-atProgramChoose.command('го', ctx => {
-  return Reply.text("Прошу, вот список направлений в вашем кампусе:",
-  {
-    buttons: getPrograms(user_info.campus)
-  })
-});
-
-
 
 atProgramChoose.command(getPrograms(user_info.campus), ctx=> {
   user_info.program = ctx.data.request.command;
@@ -234,25 +236,74 @@ atProgramChoose.any(ctx => {
 
 //---------FACULTY CHOOSE SCENE--------------------------------------------
 
-
+let chosen_one;
 atFacultyChoose.command(faculties.map(el=>el.title), ctx=> {
-  let chosen_one = faculties.find(val=>val.title===ctx.data.request.command);
-  let exam_points = EXAMS_GRADES.filter(el=>el.program_id===chosen_one.id);
+  chosen_one = faculties.find(val=>val.title===ctx.data.request.command);
+
+  return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
+  {
+    buttons: [
+      "Цена за обучение",
+      "Время обучения",
+      "Количество Бюджетных и платных мест",
+      "Проходные баллы" 
+    ]
+  })
+  // return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n"
+  // +"Цена за обучение: "+chosen_one.cost+"\n\n"
+  // +"Язык: " +chosen_one.language+"\n\n"
+  // +"Время обучения: "+chosen_one.period+"\n\n"
+  // +"Количество Бюджетных/Платных мест"+chosen_one.positions+"\n\n"
+  // +"Проходные баллы ЕГЭ:\n" + info.toString(), 
+  // { buttons : [{ title : "Перейти на сайт", payload: chosen_one, url : chosen_one.href, hide: true}]})
+})
+
+atFacultyChoose.command("Цена за обучение", ctx=> {
+  return Reply.text("Цена за обучение на \""+chosen_one.title+"\": "+ chosen_one.cost,   {
+    buttons: [
+      "Время обучения",
+      "Количество Бюджетных и платных мест",
+      "Проходные баллы" 
+    ]
+  });
+})
+
+atFacultyChoose.command("Время обучения", ctx=> {
+  return Reply.text("Время обучения на \""+chosen_one.title+"\": "+ chosen_one.period,   {
+    buttons: [
+      "Цена за обучение",
+      "Количество Бюджетных и платных мест",
+      "Проходные баллы" 
+    ]
+  });
+})
+atFacultyChoose.command("Проходные баллы", ctx=> {
   let info = "";
+  let exam_points = EXAMS_GRADES.filter(el=>el.program_id===chosen_one.id);
+
   for(let i = 0; i < exam_points.length; i++)
     for(let j = 0; j < EXAM_NAMES.length; j++)      
       if(EXAM_NAMES[j].id === exam_points[i].id)
         info += EXAM_NAMES[j].title + ": " + exam_points[i].grade+"\n";
-  
-  
-  return Reply.text(ctx.data.request.command+"? Отличный выбор! Вот, что я могу рассказать о нём:\n\n"
-  +"Цена за обучение: "+chosen_one.cost+"\n\n"
-  +"Язык: " +chosen_one.language+"\n\n"
-  +"Время обучения: "+chosen_one.period+"\n\n"
-  +"Проходные баллы ЕГЭ:\n" + info.toString(), 
-  { buttons : [{ title : "Перейти на сайт", payload: chosen_one, url : chosen_one.href, hide: true}]})
+
+  return Reply.text("Проходные баллы по ЕГЭ на \""+chosen_one.title+"\":\n "+ info.toString(),   {
+    buttons: [
+      "Цена за обучение",
+      "Время обучения",
+      "Количество Бюджетных и платных мест",
+    ]
+  });
 })
 
+atFacultyChoose.command("Количество Бюджетных и платных мест", ctx => {
+  return Reply.text("а хер его знает",  {
+    buttons: [
+      "Цена за обучение",
+      "Время обучения",
+      "Проходные баллы" 
+    ]
+  } );
+})
 atFacultyChoose.any(ctx => {
   return Reply.text(ctx.data.request.command+"? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
 });
