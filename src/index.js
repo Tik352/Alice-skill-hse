@@ -137,7 +137,7 @@ alice.command('', ctx => {
 
 // В случае позитивного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
-alice.command("Информация о поступлении", ctx => {
+alice.command(/(Информация о поступлении)|(поступ)|(инф[ау])/i, ctx => {
   isForNews = false;
   ctx.enter(CAMPUSE_CSHOOSE);
   return Reply.text(dialogs.welcome.phrase_2, {
@@ -178,6 +178,8 @@ alice.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
     end_session: true
   });
 })
+
+
 // В случае неопределенного ответа 
 alice.any(ctx => {
   return Reply.text('Не понимаю, чего вы хотите')
@@ -195,6 +197,13 @@ let cities = dialogs.campuse.moscow
 
 atCampuseChoosing.command(cities, ctx => {
   user_info.campus = ctx.data.request.command;
+
+  if (dialogs.campuse.moscow.includes(ctx.data.request.command))
+    user_info.campus = dialogs.campuse.moscow[0];
+  if (dialogs.campuse.saint_pt.includes(ctx.data.request.command))
+    user_info.campus = dialogs.campuse.saint_pt[0];
+  if (dialogs.campuse.nizniy_novg.includes(ctx.data.request.command))
+    user_info.campus = dialogs.campuse.nizniy_novg[0];  
 
   if (!isForNews) {
     ctx.enter(EXAM_QUIZ);
@@ -235,7 +244,7 @@ atExamEquiz.command('Вернуться назад', ctx => {
 
   return Reply.text("Хотите сменить кампус?", { buttons: cities });
 })
-atExamEquiz.command(dialogs.do_u_know_exam_res.answer_neg, ctx => {
+atExamEquiz.command(/(не[ат]*)/i, ctx => {
   ctx.enter(PROGRAM_CHOOSE);
 
   return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
