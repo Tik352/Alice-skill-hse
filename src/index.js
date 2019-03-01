@@ -138,6 +138,7 @@ alice.command('', ctx => {
 // В случае позитивного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
 alice.command("Информация о поступлении", ctx => {
+  isForNews = false;
   ctx.enter(CAMPUSE_CSHOOSE);
   return Reply.text(dialogs.welcome.phrase_2, {
     // ВОЗМОЖНО НЕ СРАБОТАЕТ!!!
@@ -172,7 +173,11 @@ alice.command(dialogs.welcome.answer_neg, ctx => {
   })
 });
 
-
+alice.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
+  return Reply.text("Уже уходите? Всего вам доброго!", {
+    end_session: true
+  });
+})
 // В случае неопределенного ответа 
 alice.any(ctx => {
   return Reply.text('Не понимаю, чего вы хотите')
@@ -202,10 +207,14 @@ atCampuseChoosing.command(cities, ctx => {
 
 atCampuseChoosing.command(/Назад/i, ctx => {
   ctx.leave();
-
   return Reply.text("Что вас интересует?");
 })
 
+atCampuseChoosing.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
+  return Reply.text("Уже уходите? Всего вам доброго!", {
+    end_session: true
+  });
+})
 atCampuseChoosing.any(ctx => {
   return Reply.text('Не слышала о таком городе...')
 });
@@ -240,6 +249,13 @@ atExamEquiz.command(/Назад/i, ctx => {
     ]
   });
 })
+
+atExamEquiz.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
+  return Reply.text("Уже уходите? Всего вам доброго!", {
+    end_session: true
+  });
+})
+
 atExamEquiz.any(ctx => {
   return Reply.text("О чем вы?");
 })
@@ -272,6 +288,12 @@ atProgramChoose.command(/Назад/i, ctx => {
     ]
   });
 });
+
+atProgramChoose.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
+  return Reply.text("Уже уходите? Всего вам доброго!", {
+    end_session: true
+  });
+})
 
 atProgramChoose.any(ctx => {
   return Reply.text(ctx.data.request.command + "? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
@@ -325,7 +347,7 @@ atFacultyChoose.command(["Узнать последние новости", "да
   return Reply.text(format_news);
 })
 
-atFacultyChoose.command("Цена за обучение", ctx => {
+atFacultyChoose.command(/цена/i, ctx => {
   return Reply.text("Цена за обучение на \"" + chosen_one.title + "\": " + chosen_one.cost, {
     buttons: [
       "Время обучения",
@@ -346,7 +368,7 @@ atFacultyChoose.command("Время обучения", ctx => {
     ]
   });
 })
-atFacultyChoose.command("Проходные баллы", ctx => {
+atFacultyChoose.command(/балл[ы]*/i, ctx => {
   let info = "";
   let exam_points = EXAMS_GRADES.filter(el => el.program_id === chosen_one.id);
 
@@ -366,7 +388,7 @@ atFacultyChoose.command("Проходные баллы", ctx => {
 })
 
 atFacultyChoose.command("Количество Бюджетных и платных мест", ctx => {
-  return Reply.text("а хер его знает", {
+  return Reply.text(chosen_one.positions, {
     buttons: [
       "Цена за обучение",
       "Время обучения",
@@ -385,6 +407,13 @@ atFacultyChoose.command(/Назад/i, ctx => {
     ]
   });
 })
+
+atFacultyChoose.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
+  return Reply.text("Уже уходите? Всего вам доброго!", {
+    end_session: true
+  });
+})
+
 atFacultyChoose.any(ctx => {
   return Reply.text(ctx.data.request.command + "? Этого я не знаю");
 });
