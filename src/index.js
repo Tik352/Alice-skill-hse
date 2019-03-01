@@ -11,7 +11,7 @@ const getlist = require('./getList');
 const fs = require('fs');
 // END объявление импортируемых модулей
 
-
+//kek
 // Объявление констант
 const alice = new Alice();
 const alice_stage = new Stage();
