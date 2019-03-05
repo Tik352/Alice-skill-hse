@@ -137,7 +137,7 @@ alice.command('', ctx => {
 
 // В случае позитивного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
-alice.command(/(Информация о поступлении)|(поступ)|(инф[ау])/i, ctx => {
+alice.command(/(Информаци[яю]* о поступлении)|(поступ)|(инф[ау]*)|(информаци[яуию]*)/i, ctx => {
   isForNews = false;
   ctx.enter(CAMPUSE_CSHOOSE);
   return Reply.text(dialogs.welcome.phrase_2, {
@@ -156,6 +156,8 @@ alice.command(/Новост[ия]*/i, ctx => {
     dialogs.campuse.nizniy_novg[0], dialogs.campuse.perm]
   });
 })
+
+
 // В случае негативного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
 alice.command(dialogs.welcome.answer_neg, ctx => {
@@ -216,7 +218,11 @@ atCampuseChoosing.command(cities, ctx => {
 
 atCampuseChoosing.command(/Назад/i, ctx => {
   ctx.leave();
-  return Reply.text("Что вас интересует?");
+  return Reply.text("Что вас интересует?", {
+    buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
+    Markup.button({ title: "Новости", hide: true })
+    ]
+  });
 })
 
 atCampuseChoosing.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
@@ -251,11 +257,11 @@ atExamEquiz.command(/(не[ат]*)/i, ctx => {
 });
 
 atExamEquiz.command(/Назад/i, ctx => {
-  ctx.leave();
-  return Reply.text("Что вас интересует?", {
-    buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
-    Markup.button({ title: "Новости", hide: true })
-    ]
+  //ctx.leave();
+  ctx.enter(CAMPUSE_CSHOOSE);
+  return Reply.text("Выберити кампус и направление, новости из которых вы хотите узнать", {
+    buttons: [dialogs.campuse.moscow[0], dialogs.campuse.saint_pt[0],
+    dialogs.campuse.nizniy_novg[0], dialogs.campuse.perm]
   });
 })
 
