@@ -13,7 +13,7 @@ var options = {
     },
 
     body: {
-        'url' : 'http://    umnik.hseinc.ru/images/tild3433-3532-4330-b261-653839346232__1.png'
+        'url' : 'http://umnik.hseinc.ru/images/tild3433-3532-4330-b261-653839346232__1.png'
     }
 }
 
