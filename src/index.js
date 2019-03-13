@@ -13,7 +13,11 @@ const fs = require('fs');
 
 //kek
 // Объявление констант
-const alice = new Alice();
+const alice = new Alice({
+  oAuthToken: "AQAAAAAwgtSZAAT7o3rXg48cnEIHs_VwY9-QUp0",
+  skillId: "6ec826e5-c1aa-4078-919e-a1eeb75f394e"
+});
+
 const alice_stage = new Stage();
 
 let user_info = {
@@ -125,14 +129,33 @@ alice.use(alice_stage.getMiddleware());
 
 // Базовые реплики Алисы, позволяющие ввести пользователя в диалог. 
 
-alice.command('', ctx => {
-  return Reply.text(dialogs.welcome.phrase_1, {
-    tts: dialogs.welcome.phrase_1,
-    buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
-    Markup.button({ title: "Новости", hide: true })
-    ]
+
+alice.command('', ctx => { 
+  return Reply.itemsListCard("ItemsList", { 
+  header: "Вот, что я могу", 
+  items: [ 
+  { title: "титель", description: "дискриптион", button: { text: "э", payload: {command: "э"} } }, 
+  { title: "титель", description: "дискриптион", button: { text: "э", payload: {} } }, 
+  { title: "титель", description: "дискриптион", button: { text: "э", payload: {} } }, 
+  { title: "титель", description: "дискриптион", button: { text: "э", payload: {} } } 
+  ], 
+  footer: { 
+  text: "ещё", button: { text: "ещё", payload: {}} } 
+  }); 
+  });
+  alice.command("э", ctx => {
+    return Reply.text("Ты лох?");
   })
-});
+
+  
+// alice.command('', ctx => {
+//   return Reply.text(dialogs.welcome.phrase_1, {
+//     tts: dialogs.welcome.phrase_1,
+//     buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
+//     Markup.button({ title: "Новости", hide: true })
+//     ]
+//   })
+// });
 
 
 // В случае позитивного ответа на вопрос, интересует ли пользователя 
@@ -140,6 +163,8 @@ alice.command('', ctx => {
 alice.command(/(Информаци[яю]* о поступлении)|(поступ)|(инф[ау]*)|(информаци[яуию]*)/i, ctx => {
   isForNews = false;
   ctx.enter(CAMPUSE_CSHOOSE);
+  
+  
   return Reply.text(dialogs.welcome.phrase_2, {
     // ВОЗМОЖНО НЕ СРАБОТАЕТ!!!
     tts: dialogs.welcome.answer_pos,
@@ -441,4 +466,4 @@ atFacultyChoose.any(ctx => {
 
 //--------END ALICE DIALOG ----------------------------------------------------
 
-const server = alice.listen(3001, '/');
+const server = alice.listen(3030, '/');
