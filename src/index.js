@@ -43,8 +43,10 @@ const atFacultyChoose = new Scene(FACULTY_CHOOSE);
 
 const NEWS_CHECK = "NEWS_CHECK";
 const atNewsChecking = new Scene(NEWS_CHECK);
-// END объявление констант
 
+const DEADLINES = "DEADLINES";
+const atdeadlines = new Scene(DEADLINES);
+// END объявление констант
 
 //--------SUPPORT FUNCTIONS----------------------------------------------------
 
@@ -63,7 +65,7 @@ function getPrograms(city) {
     }
   }
   return correct;
-}
+};
 
 function getFaculties(city, from) {
   let correct = [];
@@ -78,7 +80,7 @@ function getFaculties(city, from) {
     }
   }
   return correct;
-}
+};
 
 
 function getAllFaculties() {
@@ -89,7 +91,7 @@ function getAllFaculties() {
     }
   }
   return correct;
-}
+};
 
 
 
@@ -111,18 +113,13 @@ alice.use(alice_stage.getMiddleware());
 // Базовые реплики Алисы, позволяющие ввести пользователя в диалог. 
 alice.command('', ctx => {
     return Reply.text("Вы абитуриент или новости узнать хотите?", {
-        buttons:  [Markup.button({ title: "Абитуриент", hide: true }),
-            Markup.button({ title: "Новости", hide: true })],  
+        buttons: [Markup.button({ title: "Абитуриент", hide: true }),
+        Markup.button({ title: "Новости", hide: true })],
         tts: 'Здравствуйте! Вы хотите поступить в лучший вуз страны или узнать новости о вышке?',
-        
-    }) 
+
+    }); 
 });
 
-alice.command(/(ещё)/i, ctx => {
-    return Reply.text("Ещё и ещё", {
-        end_session: true
-    });
-})
 
 // В случае позитивного ответа на вопрос, интересует ли пользователя 
 // Имеющаяся информация
@@ -133,7 +130,7 @@ alice.command(/(Информация о поступлении)|(поступ)|(
         tts: 'У в+ышки много к+ампусов.-- как+ой+именно - в+асинтерес+ует?Москва? Питер? Пермь? Нижнийновгород?',
         buttons: [dialogs.campuse.moscow[0], dialogs.campuse.saint_pt[0],
         dialogs.campuse.nizniy_novg[0], dialogs.campuse.perm]
-    })
+    });
 });
 
 alice.command(/Новост[ия]*/i, ctx => {
@@ -163,10 +160,10 @@ alice.command(dialogs.welcome.answer_neg, ctx => {
 
 alice.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
     return Reply.text("Уже уходите? Всего вам доброго!", {
-        tts:'Уже уходите? Всего вам доброго',
+        tts: 'Уже уходите? Всего вам доброго',
         end_session: true
     });
-})
+});
 
 
 // В случае неопределенного ответа 
@@ -182,56 +179,55 @@ let cities = dialogs.campuse.moscow
 let citybuttons = dialogs.campuse.cities;
 
 atCampuseChoosing.command(cities, ctx => {
-  user_info.campus = ctx.data.request.command;
+    user_info.campus = ctx.data.request.command;
 
-  if (dialogs.campuse.moscow.includes(ctx.data.request.command))
-    user_info.campus = dialogs.campuse.moscow[0];
-  if (dialogs.campuse.saint_pt.includes(ctx.data.request.command))
-    user_info.campus = dialogs.campuse.saint_pt[0];
-  if (dialogs.campuse.nizniy_novg.includes(ctx.data.request.command))
-    user_info.campus = dialogs.campuse.nizniy_novg[0];  
+    if (dialogs.campuse.moscow.includes(ctx.data.request.command))
+        user_info.campus = dialogs.campuse.moscow[0];
+    if (dialogs.campuse.saint_pt.includes(ctx.data.request.command))
+        user_info.campus = dialogs.campuse.saint_pt[0];
+    if (dialogs.campuse.nizniy_novg.includes(ctx.data.request.command))
+        user_info.campus = dialogs.campuse.nizniy_novg[0];
 
-  if (!isForNews) {
-    ctx.enter(EXAM_QUIZ);
-    return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Вернуться назад"] });
-  }
-  ctx.enter(PROGRAM_CHOOSE);
-  //let info = getPrograms(user_info.campus);
-  //return Reply.itemsListCard( "? :\n", {
-  //        header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
-  //        items: [
-  //            { title: info[0] /*,description: "дискриптион", button: { text: "э", payload: {} }*/ },
-  //            { title: info[1].toString() /*, description: "дискриптион", button: { text: "э", payload: {} }*/ },
-  //            { title: info[2].toString()/*, description: "дискриптион", button: { text: "э", payload: {} }*/ },
-  //            { title: info[3].toString()/*, description: "дискриптион", button: { text: "э", payload: {} }*/ }
-  //        ],
-  //        footer: {
-  //            text: "ещё", button: { text: "ещё", payload: {} }
-  //        },
-  //        end_session: false
-  //    });
-  return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
+    if (!isForNews) {
+        ctx.enter(EXAM_QUIZ);
+        return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Назад"]} );
+    }
+    ctx.enter(PROGRAM_CHOOSE);
+    //let info = getPrograms(user_info.campus);
+    //return Reply.itemsListCard( "? :\n", {
+    //        header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
+    //        items: [
+    //            { title: info[0] /*,description: "дискриптион", button: { text: "э", payload: {} }*/ },
+    //            { title: info[1].toString() /*, description: "дискриптион", button: { text: "э", payload: {} }*/ },
+    //            { title: info[2].toString()/*, description: "дискриптион", button: { text: "э", payload: {} }*/ },
+    //            { title: info[3].toString()/*, description: "дискриптион", button: { text: "э", payload: {} }*/ }
+    //        ],
+    //        footer: {
+    //            text: "ещё", button: { text: "ещё", payload: {} }
+    //        },
+    //        end_session: false
+    //    });
+    return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
 
-})
+});
 
 atCampuseChoosing.command(/(Назад)|(верни)|(стой)|(наверх)/i, ctx => {
     ctx.leave();
     return Reply.text("Вы абитуриент или новости узнать хотите?", {
         tts: "Здравствуйте! Вы хотите поступить в лучший вуз страны или узнать новости о вышке?",
-        buttons: [Markup.button({ title: "Абитуриенту", hide: true }),
+        buttons: [Markup.button({ title: "Абитуриент", hide: true }),
         Markup.button({ title: "Новости", hide: true })]
     });
 });
 //ответ на хотите сменить кампус?
-//atCampuseChoosing.command(/(нет)|(передум)/i, ctx => {
-//     if (!isForNews) {
-//ctx.enter(EXAM_QUIZ);
-//return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Вернуться назад"] });
-//  }
-//ctx.enter(PROGRAM_CHOOSE);
-//return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
-//    });
-//});
+atCampuseChoosing.command(/(нет)|(передум)/i, ctx => {
+    if (!isForNews) {
+        ctx.enter(EXAM_QUIZ);
+        return Reply.text("У вас есть результаты ЕГЭ?", { buttons: [{ title: ["Да", "Нет", "назад"], hide: true }] });
+    }
+    ctx.enter(PROGRAM_CHOOSE);
+    return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
+});
 
 atCampuseChoosing.command(/(уйти)|(пока)|(досвидания)|(отвали)|(отстань)|(хватит)/i, ctx => {
     return Reply.text("Уже уходите? Всего вам доброго!", {
@@ -253,7 +249,7 @@ atExamEquiz.command(dialogs.do_u_know_exam_res.answer_pos, ctx => {
     return Reply.text("Данная ветвь диалога ещё не проработана")
 });
 
-atExamEquiz.command(/(Назад)|(верн[и])|(стой)|(наверх)(ой)/i, ctx => {
+atExamEquiz.command(/(Назад)|(верн[и])|(стой)|(наверх)|(ой)/i, ctx => {
     ctx.enter(CAMPUSE_CSHOOSE);
     return Reply.text("Хотите сменить кампус?", {
         buttons: citybuttons
@@ -261,22 +257,26 @@ atExamEquiz.command(/(Назад)|(верн[и])|(стой)|(наверх)(ой)
 });
 
 atExamEquiz.command(/(не[ат]*)/i, ctx => {
+    let items = getPrograms(user_info.campus).map(el => ({
+        title: el,
+        button: {
+            text: el, payload: {}, type: "ButtonPressed"},
+    }));
     ctx.enter(PROGRAM_CHOOSE);
-    let info = getPrograms(user_info.campus);
+    //let info = getPrograms(user_info.campus);
     return Reply.itemsListCard("Направления", {
         header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
-        items: [
-            { title: info[0], button: { text: info[0].toString(), payload: {} } },
-            { title: info[1], button: { text: info[1].toString(), payload: {} } },
-            { title: info[2], button: { text: info[2].toString(), payload: {} } },
-            { title: info[3], button: { text: info[3].toString(), payload: {} } }
-        ],
+        items: items,
         footer: {
-            text: "ещё", button: { text: "ещё", payload: {} }
+            text: "ещё", button: { text: "ещё", payload: {}, type: "ButtonPressed" }
         },
-        end_session: false
     });
 });
+atExamEquiz.command(/(ещ)/i, ctx => {
+    return Reply.text("Ещё и ещё", {
+        end_session: true
+    });
+})
 
 atExamEquiz.command(/(Назад)|(верни)|(стой)|(наверх)(ой)/i, ctx => {
   ctx.leave();
@@ -302,46 +302,45 @@ atExamEquiz.any(ctx => {
 
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
 
-//atProgramChoose.command(getPrograms(user_info.campus), ctx => {
-//  user_info.program = ctx.data.request.command;
-
-//  faculties = getFaculties(user_info.program, user_info.campus);
-
-//  ctx.enter(FACULTY_CHOOSE);
-
-//  return Reply.text(ctx.data.request.command + "? Отлично, вот список факультетов в данном направлении:\n" +
-//    "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
-//      buttons: faculties.map(el => el.title)
-//    });
-//})
 atProgramChoose.command(getPrograms(user_info.campus), ctx => {
     user_info.program = ctx.data.request.command;
+
     faculties = getFaculties(user_info.program, user_info.campus);
+
     ctx.enter(FACULTY_CHOOSE);
-    return Reply.itemsListCard("Факультеты", {
-        header: "Отлично, вот список факультетов на данном направлении, выбери любой и я выведу список образовательных программ по нему ",
-        items: [
-            { title: faculties[0].title,  button: { text: faculties[0].title, payload: {} } },
-            { title: faculties[1].title,  button: { text: faculties[1].title, payload: {} } },
-            { title: faculties[2].title,  button: { text: faculties[2].title, payload: {} } },
-            { title: faculties[3].title,  button: { text: faculties[3].title, payload: {} } }
-        ],
-        footer: {
-            text: "ещё", button: { text: "ещё", payload: {} }
-        },
-        end_session: false
-    });
+    return Reply.text(ctx.data.request.command + "? Отлично, вот список факультетов в данном направлении:\n" +
+        "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
+            buttons: faculties.map(el => el.title)
+        });
+});
+//atProgramChoose.command(getPrograms(user_info.campus), ctx => {
+//    user_info.program = ctx.data.request.command;
+//    faculties = getFaculties(user_info.program, user_info.campus);
+//    ctx.enter(FACULTY_CHOOSE);
+//    return Reply.itemsListCard("Факультеты", {
+//        header: "Отлично, вот список факультетов на данном направлении, выбери любой и я выведу список образовательных программ по нему ",
+//        items: [
+//            { title: faculties[0].title,  button: { text: faculties[0].title, payload: {} } },
+//            { title: faculties[1].title,  button: { text: faculties[1].title, payload: {} } },
+//            { title: faculties[2].title,  button: { text: faculties[2].title, payload: {} } },
+//            { title: faculties[3].title,  button: { text: faculties[3].title, payload: {} } }
+//        ],
+//        footer: {
+//            text: "ещё", button: { text: "ещё", payload: {} }
+//        },
+//        end_session: false
+//    });
    
+//});
+atProgramChoose.command(/(Назад)|(верни)|(стой)|(наверх)|(ой)/i, ctx => {
+    ctx.leave();
+    return Reply.text("Хотите узнать новости или информацию о поступлении?", {
+        buttons: [Markup.button({ title: "О поступлении", hide: true }),
+        Markup.button({ title: "Новости", hide: true })
+        ]
+    });
 });
 
-atProgramChoose.command(/Назад/i, ctx => {
-  ctx.leave();
-  return Reply.text("Хотите узнать новости или информацию о поступлении?", {
-    buttons: [Markup.button({ title: "О поступлении", hide: false }),
-    Markup.button({ title: "Новости", hide: true })
-    ]
-  });
-});
 
 atProgramChoose.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
     return Reply.text("Уже уходите? Всего вам доброго!", {
@@ -371,24 +370,24 @@ atFacultyChoose.command(faculties.map(el => el.title), ctx => {
     })
   });
   if (!isForNews) {
-    return Reply.text(ctx.data.request.command + "? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
-      {
-        buttons: [
-          "Цена за обучение",
-          "Время обучения",
-          "Количество Бюджетных и платных мест",
-          "Проходные баллы",
-          "Узнать последние новости"
-        ]
-      })
-  }
-
+      return Reply.text(ctx.data.request.command + "? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
+          {
+              buttons: [
+                  "Цена за обучение",
+                  "Время обучения",
+                  "Количество Бюджетных и платных мест",
+                  "Минимальные проходные баллы",
+                  "Проходные баллы прошлых лет",
+                  "Новости"
+              ]
+          });
+  };
   return Reply.text("Узнать о последних событиях на " + chosen_one.title, {
     buttons: ["Давай", "Ненадо"]
   });
 })
 
-atFacultyChoose.command(["Узнать последние новости", "давай"], ctx => {
+atFacultyChoose.command(/(Узнать последние новости)|(давай)|(что нового)|(нов)|/i, ctx => {
   let news = fs.readFileSync('./data/news.json', 'utf-8');
   let jsonNews = JSON.parse(news);
 
@@ -401,28 +400,31 @@ atFacultyChoose.command(["Узнать последние новости", "да
   return Reply.text(format_news);
 })
 
-atFacultyChoose.command(/цена/i, ctx => {
-  return Reply.text("Цена за обучение на \"" + chosen_one.title + "\": " + chosen_one.cost, {
-    buttons: [
-      "Время обучения",
-      "Количество Бюджетных и платных мест",
-      "Проходные баллы",
-      "Узнать последние новости"
-    ]
-  });
-})
-
-atFacultyChoose.command("Время обучения", ctx => {
-    return Reply.text("Время обучения на \"" + chosen_one.title + "\": " + chosen_one.period, {
+atFacultyChoose.command(/(цен[аник])|(прайс)|(бабки)|(деньги)|(мани)|(сколько стоит)|(скидк[аи])/i, ctx => {
+    return Reply.text("Цена за обучение на \"" + chosen_one.title + "\": " + chosen_one.cost, {
         buttons: [
+            "Количество бюджетных и платных мест",
+            "Минимальные проходные баллы",
+            "Проходные баллы прошлых лет",
+            "Время обучения",
             "Цена за обучение",
-            "Количество Бюджетных и платных мест",
-            "Проходные баллы",
-            "Узнать последние новости"
+            "Новости"
         ]
     });
 });
-atFacultyChoose.command(/балл[ы]*/i, ctx => {
+
+atFacultyChoose.command("(Время обучения)|(долго)|(сколько учиться)|(время)", ctx => {
+    return Reply.text("Время обучения на \"" + chosen_one.title + "\": " + chosen_one.period, {
+        buttons: [
+            "Цена за обучение",
+            "Количество  мест",
+            "Минимальные проходные баллы",
+            "Проходные баллы прошлых лет",
+            "Новости"
+        ]
+    });
+});
+atFacultyChoose.command(/(миним)/i, ctx => {
     let info = "";
     let exam_points = EXAMS_GRADES.filter(el => el.program_id === chosen_one.id);
 
@@ -430,31 +432,33 @@ atFacultyChoose.command(/балл[ы]*/i, ctx => {
         for (let j = 0; j < EXAM_NAMES.length; j++)
             if (EXAM_NAMES[j].id === exam_points[i].id)
                 info += EXAM_NAMES[j].title + ": " + exam_points[i].grade + "\n";
-
-    return Reply.text("Проходные баллы по ЕГЭ на \"" + chosen_one.title + "\":\n " + info.toString(), {
+    if (info == "")
+        info = "Не приведены, дополнительную информацию ищите на сайте" + chosen_one.href;
+    return Reply.text("Минимальные проходные баллы по ЕГЭ на \"" + chosen_one.title + "\":\n " + info.toString(), {
         buttons: [
             "Цена за обучение",
             "Время обучения",
-            "Количество Бюджетных и платных мест",
-            "Узнать последние новости"
+            "Количество мест",
+            "Проходные баллы прошлых лет",
+            "Новости"
         ]
     });
 });
 
-atFacultyChoose.command("Количество Бюджетных и платных мест", ctx => {
+atFacultyChoose.command("(Количество бюджетных и платных мест)|(мест[а])|(бюджет[s[])|(плат[ка])", ctx => {
     return Reply.text(chosen_one.positions, {
         buttons: [
             "Цена за обучение",
+            "Минимальные проходные баллы",
+            "Проходные баллы прошлых лет",
             "Время обучения",
-            "Проходные баллы",
-            "Узнать последние новости"
+            "Новости"
         ]
     });
 });
 
 atFacultyChoose.command(/Назад/i, ctx => {
     ctx.leave();
-
     return Reply.text("Что вас интересует?", {
         buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
         Markup.button({ title: "Новости", hide: true })
@@ -469,7 +473,7 @@ atFacultyChoose.command(/(уйти)|(пока)|(досвидания)/i, ctx => 
 });
 
 atFacultyChoose.any(ctx => {
-  return Reply.text(ctx.data.request.command + "? Этого я не знаю");
+  return Reply.text(ctx.data.request.command + "Этого я не знаю");
 });
 
 //---------END FACULTY CHOOSE SCENE---------------------------------------
