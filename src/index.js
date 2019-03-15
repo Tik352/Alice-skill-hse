@@ -1,4 +1,3 @@
-
 // импортируемые модули и файлы для дальнейшей работы навыка
 const { Alice, Reply, Stage, Scene, Markup } = require('yandex-dialogs-sdk');
 
@@ -52,45 +51,45 @@ const atdeadlines = new Scene(DEADLINES);
 
 // Возвращает массив программ, имеющихся в выбранном кампусе
 function getPrograms(city) {
-  let correct = [];
-  let index = 0;
-  for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
-      item_index++) {
-      if (program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === city.toLowerCase()) {
-        correct.push((program_discounts.programs[program_index].title).match('[а-яА-Я ]+')[0]);
-        // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
-        break;
-      }
+    let correct = [];
+    let index = 0;
+    for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+        for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length;
+            item_index++) {
+            if (program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === city.toLowerCase()) {
+                correct.push((program_discounts.programs[program_index].title).match('[а-яА-Я ]+')[0]);
+                // correct += ++index + ". " + (program_discounts.programs[program_index].title).match('[а-яА-Я ]+') +"\n";
+                break;
+            }
+        }
     }
-  }
-  return correct;
+    return correct;
 };
 
 function getFaculties(city, from) {
-  let correct = [];
-  for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
-      if (program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase()) &&
-        program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === from.toLowerCase()) {
-        correct.push(
-          program_discounts.programs[program_index].items[item_index]
-        );
-      }
+    let correct = [];
+    for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+        for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
+            if (program_discounts.programs[program_index].title.toLowerCase().includes(city.toLowerCase()) &&
+                program_discounts.programs[program_index].items[item_index].campus_title.toLowerCase() === from.toLowerCase()) {
+                correct.push(
+                    program_discounts.programs[program_index].items[item_index]
+                );
+            }
+        }
     }
-  }
-  return correct;
+    return correct;
 };
 
 
 function getAllFaculties() {
-  let correct = [];
-  for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
-    for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
-      correct.push(program_discounts.programs[program_index].items[item_index]);
+    let correct = [];
+    for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
+        for (let item_index = 0; item_index < program_discounts.programs[program_index].items.length; item_index++) {
+            correct.push(program_discounts.programs[program_index].items[item_index]);
+        }
     }
-  }
-  return correct;
+    return correct;
 };
 
 
@@ -116,8 +115,7 @@ alice.command('', ctx => {
         buttons: [Markup.button({ title: "Абитуриент", hide: true }),
         Markup.button({ title: "Новости", hide: true })],
         tts: 'Здравствуйте! Вы хотите поступить в лучший вуз страны или узнать новости о вышке?',
-
-    }); 
+    });
 });
 
 
@@ -173,11 +171,14 @@ alice.any(ctx => Reply.text('Не понимаю, чего вы хотите') )
 //--------END WELCOMING--------------------------------------------------------
 
 let cities = dialogs.campuse.moscow
-  .concat(dialogs.campuse.saint_pt
-    .concat(dialogs.campuse.nizniy_novg
+    .concat(dialogs.campuse.saint_pt
+        .concat(dialogs.campuse.nizniy_novg
             .concat(dialogs.campuse.perm)))
 let citybuttons = dialogs.campuse.cities;
+var listprograms = [];// список направлений,доступных в кампусе
 
+let countOfProg = 0;//текущее количество программ
+let MAX_COUNT = 0;//максимально количество программ
 atCampuseChoosing.command(cities, ctx => {
     user_info.campus = ctx.data.request.command;
 
@@ -187,27 +188,60 @@ atCampuseChoosing.command(cities, ctx => {
         user_info.campus = dialogs.campuse.saint_pt[0];
     if (dialogs.campuse.nizniy_novg.includes(ctx.data.request.command))
         user_info.campus = dialogs.campuse.nizniy_novg[0];
+    if (dialogs.campuse.perm === ctx.data.request.command)
+        user_info.campus = dialogs.campuse.perm;
 
     if (!isForNews) {
         ctx.enter(EXAM_QUIZ);
-        return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Назад"]} );
+        return Reply.text(dialogs.do_u_know_exam_res.phrase_1, { buttons: ["Да", "Нет", "Назад"] });
     }
-    ctx.enter(PROGRAM_CHOOSE);
-    //let info = getPrograms(user_info.campus);
-    //return Reply.itemsListCard( "? :\n", {
-    //        header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
-    //        items: [
-    //            { title: info[0] /*,description: "дискриптион", button: { text: "э", payload: {} }*/ },
-    //            { title: info[1].toString() /*, description: "дискриптион", button: { text: "э", payload: {} }*/ },
-    //            { title: info[2].toString()/*, description: "дискриптион", button: { text: "э", payload: {} }*/ },
-    //            { title: info[3].toString()/*, description: "дискриптион", button: { text: "э", payload: {} }*/ }
-    //        ],
-    //        footer: {
-    //            text: "ещё", button: { text: "ещё", payload: {} }
-    //        },
-    //        end_session: false
-    //    });
-    return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
+    else {
+        listprograms = getPrograms(user_info.campus);//получаем список направлений,доступных в кампусе
+        MAX_COUNT = listprograms.length;//считаем какое будет максимально количество программ
+        countOfProg = 0;
+        let temp = [];//временный массив программ
+        for (let i = 0; i < 5 & i < MAX_COUNT; i++) {
+            temp.push(listprograms[i])//добавляем программы из списка
+            countOfProg++;//считаем кол-во прорамм, которые мы добавили
+        }
+
+        for (var i = 0; i < countOfProg; i++) {
+            listprograms.shift();
+        }
+
+        //создаем список айтемов для карточки
+        let items = temp.map(el => ({
+            image_id: "1656841/987aad4849a6e123fb01",
+            title: el,
+            button: {
+                text: el,
+                payload: el
+            },
+        }));
+        ctx.enter(PROGRAM_CHOOSE);//входим в сцену выбора образовательного направления
+        //если количество не выведенных больше 5
+        if (countOfProg < MAX_COUNT) {
+            return Reply.itemsListCard("Направления", {
+                header: "Хорошо, тогда выберите одно из направлений, которые есть в выбранном кампусе ",
+                items: items,
+                footer: {
+                    text: "ещё",
+                    button: {
+                        text: "ещё",
+                        payload: "ещё"
+                    }
+                },
+            });
+        }
+        else {
+            return Reply.itemsListCard("Направления", {
+                header: "Хорошо, тогда выберите одно из направлений, которые есть в выбранном кампусе ",
+                items: items
+            });
+        }
+        
+        return Reply.text(dialogs.choose_program.phrase_1, { buttons: getPrograms(user_info.campus) })
+    }
 
 });
 
@@ -256,35 +290,60 @@ atExamEquiz.command(/(Назад)|(верн[и])|(стой)|(наверх)|(ой
     });
 });
 
+
 atExamEquiz.command(/(не[ат]*)/i, ctx => {
-    let items = getPrograms(user_info.campus).map(el => ({
+    listprograms = getPrograms(user_info.campus);//получаем список направлений,доступных в кампусе
+    MAX_COUNT = listprograms.length;//считаем какое будет максимально количество программ
+    countOfProg = 0;
+    let temp = [];//временный массив программ
+    for (let i = 0; i < 5 & i < MAX_COUNT; i++) {
+        temp.push(listprograms[i])//добавляем программы из списка
+        countOfProg++;//считаем кол-во прорамм, которые мы добавили
+    }
+   
+    for (var i = 0; i < countOfProg; i++) {
+        listprograms.shift();
+    }
+
+    //создаем список айтемов для карточки
+    let items = temp.map(el => ({
+        image_id: "1656841/987aad4849a6e123fb01",
         title: el,
         button: {
-            text: el, payload: {}, type: "ButtonPressed"},
-    }));
-    ctx.enter(PROGRAM_CHOOSE);
-    //let info = getPrograms(user_info.campus);
-    return Reply.itemsListCard("Направления", {
-        header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
-        items: items,
-        footer: {
-            text: "ещё", button: { text: "ещё", payload: {}, type: "ButtonPressed" }
+            text: el,
+            payload: el
         },
-    });
+    }));
+    ctx.enter(PROGRAM_CHOOSE);//входим в сцену выбора образовательного направления
+    //если количество не выведенных больше 5
+    if (countOfProg < MAX_COUNT) {
+        return Reply.itemsListCard("Направления", {
+            header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
+            items: items,
+            footer: {
+                text: "ещё",
+                button: {
+                    text: "ещё",
+                    payload: "ещё"
+                }
+            },
+        });
+    }
+    else {
+        return Reply.itemsListCard("Направления", {
+            header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
+            items: items
+        });
+    }
 });
-atExamEquiz.command(/(ещ)/i, ctx => {
-    return Reply.text("Ещё и ещё", {
-        end_session: true
-    });
-})
 
 atExamEquiz.command(/(Назад)|(верни)|(стой)|(наверх)(ой)/i, ctx => {
-  ctx.leave();
-  return Reply.text("Вы абитуриент или новости узнать хотите?", {
-      buttons: [Markup.button({ title: "Абитуриент", hide: true }),
-      Markup.button({ title: "Новости", hide: true })],
-      tts: 'Здравствуйте! Вы абитуриент или хотите узнать новости о вышке?',
-  }) 
+    ctx.leave();
+    return Reply.text("Вы абитуриент или новости узнать хотите?", {
+        buttons: [Markup.button({ title: "Абитуриент", hide: true }),
+        Markup.button({ title: "Новости", hide: true })],
+        tts: 'Здравствуйте! Вы абитуриент или хотите узнать новости о вышке?',
+    })
 })
 
 atExamEquiz.command(/(уйти)|(пока)|(досвидания)/i, ctx => {
@@ -302,36 +361,132 @@ atExamEquiz.any(ctx => {
 
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
 
-atProgramChoose.command(getPrograms(user_info.campus), ctx => {
-    user_info.program = ctx.data.request.command;
+atProgramChoose.command('', ctx => {
 
-    faculties = getFaculties(user_info.program, user_info.campus);
+    if (getPrograms(user_info.campus).includes(ctx.payload))//если пользователь выбрал направление
+    {
+        user_info.program = ctx.payload;
+        faculties = getFaculties(user_info.program, user_info.campus);
+        ctx.enter(FACULTY_CHOOSE);//переходим в сцену выбора образователной программы
+        return Reply.text(ctx.payload + "? Хорошо, вот список образовательных программ данном направлении:\n" +
+            "Выберите интересующую вас программу обучения и я выведу всю известную о нём информацию", {
+                buttons: faculties.map(el => el.title)
+            });
+    }
+    if (ctx.payload == 'ещё' && listprograms.length <= 0) {
+        return Reply.text("Упс, кажется список уже закончился! скажи назад или выбери направление\n" )
+    }
+    //если пользователь не выбрал направление, а нажал еще
+    if (ctx.payload == 'ещё' && listprograms.length > 0) {
+        let temp = [];
+
+        MAX_COUNT -= countOfProg;//вычитаем из общего количества количество ранее выведенных
+        countOfProg = 0;//обнуляем счетчик текущего количества программ в айтеме
+     
+        for (let i = 0; i < 5 & i < MAX_COUNT; i++) {
+            temp.push(listprograms[i])
+            countOfProg++;
+        }
+       
+        for (var i = 0; i < countOfProg; i++) {
+            listprograms.shift();
+        }
+       
+
+        //создаем список айтемов
+        let items = temp.map(el => ({
+            image_id: "1656841/987aad4849a6e123fb01",
+            title: el,
+            button: {
+                text: el,
+                payload: el
+            },
+        }));
+
+        if (countOfProg < MAX_COUNT) {
+            return Reply.itemsListCard("Направления", {
+                header: "Если ты не можешь найти свое направление, попробуй сменить кампус",
+                items: items,
+                footer: {
+                    text: "ещё",
+                    button: {
+                        text: "ещё",
+                        payload: "ещё"
+                    }
+                },
+            });
+        }
+        else {
+            return Reply.itemsListCard("Направления", {
+                header: "Кажется, список закончился",
+                items: items
+            });
+        }
+    }
+    
+
+});
+atProgramChoose.command(getPrograms(user_info.campus), ctx => {
 
     ctx.enter(FACULTY_CHOOSE);
-    return Reply.text(ctx.data.request.command + "? Отлично, вот список факультетов в данном направлении:\n" +
-        "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
+    return Reply.text(ctx.data.request.command + "? Хорошо, вот список программ в данном направлении:\n" +
+        "Выберите интересую вас программу и я выведу всю известную о нём информацию", {
             buttons: faculties.map(el => el.title)
         });
 });
-//atProgramChoose.command(getPrograms(user_info.campus), ctx => {
-//    user_info.program = ctx.data.request.command;
-//    faculties = getFaculties(user_info.program, user_info.campus);
-//    ctx.enter(FACULTY_CHOOSE);
-//    return Reply.itemsListCard("Факультеты", {
-//        header: "Отлично, вот список факультетов на данном направлении, выбери любой и я выведу список образовательных программ по нему ",
-//        items: [
-//            { title: faculties[0].title,  button: { text: faculties[0].title, payload: {} } },
-//            { title: faculties[1].title,  button: { text: faculties[1].title, payload: {} } },
-//            { title: faculties[2].title,  button: { text: faculties[2].title, payload: {} } },
-//            { title: faculties[3].title,  button: { text: faculties[3].title, payload: {} } }
-//        ],
-//        footer: {
-//            text: "ещё", button: { text: "ещё", payload: {} }
-//        },
-//        end_session: false
-//    });
-   
-//});
+atProgramChoose.command(/ещ[её]/i, ctx => {
+
+    if (listprograms.length <= 0) {
+        return Reply.text("Упс, кажется список уже закончился! скажи назад или выбери направление\n")
+    }
+    //если пользователь не выбрал направление, а нажал еще
+    if (listprograms.length > 0) {
+        let temp = [];
+
+        MAX_COUNT -= countOfProg;//вычитаем из общего количества количество ранее выведенных
+        countOfProg = 0;//обнуляем счетчик текущего количества программ в айтеме
+
+        for (let i = 0; i < 5 & i < MAX_COUNT; i++) {
+            temp.push(listprograms[i])
+            countOfProg++;
+        }
+
+        for (var i = 0; i < countOfProg; i++) {
+            listprograms.shift();
+        }
+
+        //создаем список айтемов
+        let items = temp.map(el => ({
+            image_id: "1656841/987aad4849a6e123fb01",
+            title: el,
+            button: {
+                text: el,
+                payload: el
+            },
+        }));
+
+        if (countOfProg < MAX_COUNT) {
+            return Reply.itemsListCard("Направления", {
+                header: "Если ты не можешь найти свое направление, попробуй сменить кампус",
+                items: items,
+                footer: {
+                    text: "ещё",
+                    button: {
+                        text: "ещё",
+                        payload: "ещё"
+                    }
+                },
+            });
+        }
+        else {
+            return Reply.itemsListCard("Направления", {
+                header: "Кажется, список закончился",
+                items: items
+            });
+        }
+    }
+});
+
 atProgramChoose.command(/(Назад)|(верни)|(стой)|(наверх)|(ой)/i, ctx => {
     ctx.leave();
     return Reply.text("Хотите узнать новости или информацию о поступлении?", {
@@ -349,7 +504,7 @@ atProgramChoose.command(/(уйти)|(пока)|(досвидания)/i, ctx => 
 });
 
 atProgramChoose.any(ctx => {
-  return Reply.text(ctx.data.request.command + "? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
+    return Reply.text(ctx.data.request.command + "? Впервые слышу. Вы уверены, что такой факльутет есть в нашем ВУЗе?");
 });
 
 //---------END PROGRAM CHOOSE SCENE---------------------------------------
@@ -361,66 +516,90 @@ let chosen_one;
 
 atFacultyChoose.command(faculties.map(el => el.title), ctx => {
 
-  chosen_one = faculties.find(val => val.title === ctx.data.request.command);
-
-  getlist(chosen_one.href, info => {
-    fs.writeFile('./data/news.json', JSON.stringify(info), (err, data) => {
-      if (err)
-        throw err;
-    })
-  });
-  if (!isForNews) {
-      return Reply.text(ctx.data.request.command + "? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
-          {
-              buttons: [
-                  "Цена за обучение",
-                  "Время обучения",
-                  "Количество Бюджетных и платных мест",
-                  "Минимальные проходные баллы",
-                  "Проходные баллы прошлых лет",
-                  "Новости"
-              ]
-          });
-  };
-  return Reply.text("Узнать о последних событиях на " + chosen_one.title, {
-    buttons: ["Давай", "Ненадо"]
-  });
-})
-
-atFacultyChoose.command(/(Узнать последние новости)|(давай)|(что нового)|(нов)|/i, ctx => {
-  let news = fs.readFileSync('./data/news.json', 'utf-8');
-  let jsonNews = JSON.parse(news);
-
-  let format_news = "";
-
-  for (let i = 1; i < jsonNews.length; i++) {
-    format_news += jsonNews[i].description + "\n"
-      + "ссылка: " + jsonNews[i].url + "\n\n\n";
-  }
-  return Reply.text(format_news);
-})
+    chosen_one = faculties.find(val => val.title === ctx.data.request.command);
+    getlist(chosen_one.href, info => {
+        fs.writeFile('./data/news.json', JSON.stringify(info), (err, data) => {
+            if (err)
+                throw err;
+        })
+    });
+    if (!isForNews) {
+        return Reply.text(ctx.data.request.command + "? Отличный выбор! Вот, что я могу рассказать о нём:\n\n",
+            {
+                buttons: [
+                    "Цена за обучение",
+                    "Минимальные проходные баллы",
+                    "Проходные баллы прошлых лет",
+                    "Новости",
+                    "Время обучения",
+                    "Количество Бюджетных и платных мест",
+                    "Контакты"
+                ]
+            });
+    };
+    return Reply.text("Узнать о последних событиях на " + chosen_one.title, {
+        buttons: ["Давай", "Не надо"]
+    });
+});
+atFacultyChoose.command(/(Узнать последние новости)|(давай)|(что нового)|(нов)/i, ctx => {
+    let news = fs.readFileSync('./data/news.json', 'utf-8');
+    let jsonNews = JSON.parse(news);
+    if (jsonNews.length == 0) {
+        ctx.leave();
+        return Reply.text("К сожалению, новостей на сегодня нет\n" +
+            "Что вас интересует?",
+            {
+                buttons: [Markup.button({ title: "Информация о поступлении", hide: true }),
+                Markup.button({ title: "Новости", hide: true })
+                ]
+            });
+    }
+    let temp = [];
+    for (var i = 0; i < jsonNews.length && i<5; i++) {
+        temp.push(jsonNews[i]);
+    }
+    
+    let items = temp.map(el => ({
+        image_id: "1656841/987aad4849a6e123fb01",
+        title: el.description,
+        description: el.description,
+        button: {
+            text: "Узнать подробнее...",
+            url: el.url,
+            payload: {}
+        }
+    }
+    ));
+    return Reply.itemsListCard("Новости", {
+        header: "Новости",
+        items: items
+    });
+});
 
 atFacultyChoose.command(/(цен[аник])|(прайс)|(бабки)|(деньги)|(мани)|(сколько стоит)|(скидк[аи])/i, ctx => {
     return Reply.text("Цена за обучение на \"" + chosen_one.title + "\": " + chosen_one.cost, {
-        buttons: [
-            "Количество бюджетных и платных мест",
+        buttons: [           
             "Минимальные проходные баллы",
             "Проходные баллы прошлых лет",
+            "Новости",
             "Время обучения",
-            "Цена за обучение",
-            "Новости"
+            "Количество бюджетных и платных мест",
+            "Контакты" ,
+            "Цена за обучение"
         ]
     });
 });
 
-atFacultyChoose.command("(Время обучения)|(долго)|(сколько учиться)|(время)", ctx => {
+atFacultyChoose.command(/(Время обучения)|(долго)|(сколько учиться)|(время)/i, ctx => {
     return Reply.text("Время обучения на \"" + chosen_one.title + "\": " + chosen_one.period, {
-        buttons: [
+        buttons: [       
+            "Количество бюджетных и платных мест",
+            "Контакты",
             "Цена за обучение",
-            "Количество  мест",
             "Минимальные проходные баллы",
             "Проходные баллы прошлых лет",
-            "Новости"
+            "Новости",
+            "Время обучения"
         ]
     });
 });
@@ -436,23 +615,27 @@ atFacultyChoose.command(/(миним)/i, ctx => {
         info = "Не приведены, дополнительную информацию ищите на сайте" + chosen_one.href;
     return Reply.text("Минимальные проходные баллы по ЕГЭ на \"" + chosen_one.title + "\":\n " + info.toString(), {
         buttons: [
-            "Цена за обучение",
-            "Время обучения",
-            "Количество мест",
             "Проходные баллы прошлых лет",
-            "Новости"
+            "Новости",
+            "Время обучения",
+            "Количество бюджетных и платных мест",
+            "Контакты",
+            "Цена за обучение",
+            "Минимальные проходные баллы"
         ]
     });
 });
 
-atFacultyChoose.command("(Количество бюджетных и платных мест)|(мест[а])|(бюджет[s[])|(плат[ка])", ctx => {
+atFacultyChoose.command(/(Количество бюджетных и платных мест)|(мест[а])|(бюджет)|(плат[ка]*)/, ctx => {
     return Reply.text(chosen_one.positions, {
         buttons: [
+            "Контакты",
             "Цена за обучение",
             "Минимальные проходные баллы",
             "Проходные баллы прошлых лет",
+            "Новости",
             "Время обучения",
-            "Новости"
+            "Количество бюджетных и платных мест"
         ]
     });
 });
@@ -460,7 +643,7 @@ atFacultyChoose.command("(Количество бюджетных и платн�
 atFacultyChoose.command(/Назад/i, ctx => {
     ctx.leave();
     return Reply.text("Что вас интересует?", {
-        buttons: [Markup.button({ title: "Информация о поступлении", hide: false }),
+        buttons: [Markup.button({ title: "Информация о поступлении", hide: true }),
         Markup.button({ title: "Новости", hide: true })
         ]
     });
@@ -473,7 +656,7 @@ atFacultyChoose.command(/(уйти)|(пока)|(досвидания)/i, ctx => 
 });
 
 atFacultyChoose.any(ctx => {
-  return Reply.text(ctx.data.request.command + "Этого я не знаю");
+    return Reply.text(ctx.data.request.command + "Этого я не знаю");
 });
 
 //---------END FACULTY CHOOSE SCENE---------------------------------------
@@ -481,4 +664,4 @@ atFacultyChoose.any(ctx => {
 
 //--------END ALICE DIALOG ----------------------------------------------------
 
-const server = alice.listen(3001, '/');
+const server = alice.listen(3030, '/');
