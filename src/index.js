@@ -657,6 +657,9 @@ atCampuseChoosing.command(cities, ctx => {
     user_info.campus = dialogs.campuse.saint_pt[0];
   if (dialogs.campuse.nizniy_novg.includes(ctx.data.request.command))
     user_info.campus = dialogs.campuse.nizniy_novg[0];
+  if (dialogs.campuse.perm === ctx.data.request.command)
+    user_info.campus = dialogs.campuse.perm;
+
 
   if (!isForNews) {
     ctx.enter(EXAM_QUIZ);
@@ -734,13 +737,25 @@ let countOfProg = 0;
 let MAX_COUNT = 0;
 atExamEquiz.command(/(не[ат]*)/i, ctx => {
   listprograms = getPrograms(user_info.campus);
+
   MAX_COUNT = listprograms.length;
 
+  console.log(MAX_COUNT);
+
   let temp = [];
-  for (var i = countOfProg; i < countOfProg + 5; i++) {
+  // if (MAX_COUNT > 5) {
+  for (let i = 0; i < 4; i++) {
     temp.push(listprograms[i])
   }
   countOfProg += 5;
+  //}
+  // else {
+  //   for (let j = 0; j < 4; j++) {
+  //     temp.push(listprograms[j]);
+  //   }
+  //   countOfProg += MAX_COUNT;
+
+  // }
 
   let items = temp.map(el => ({
     image_id: "1656841/987aad4849a6e123fb01",
@@ -753,7 +768,7 @@ atExamEquiz.command(/(не[ат]*)/i, ctx => {
 
   ctx.enter(PROGRAM_CHOOSE);
   //let info = getPrograms(user_info.campus);
-  if (countOfProg < MAX_COUNT)
+  if (countOfProg < MAX_COUNT) {
     return Reply.itemsListCard("Направления", {
       header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
       items: items,
@@ -766,12 +781,19 @@ atExamEquiz.command(/(не[ат]*)/i, ctx => {
       },
 
     });
+  } else {
+    return Reply.itemsListCard("Направления", {
+      header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
+      items: items
+    });
+  }
 });
 atExamEquiz.command('', ctx => {
   if (ctx.payload == 'ещё')
     ctx.enter(PROGRAM_CHOOSE);
 
   let temp = [];
+
   for (var i = countOfProg; i < countOfProg + 5; i++) {
     temp.push(listprograms[i])
   }
