@@ -738,7 +738,6 @@ atExamEquiz.command(/(не[ат]*)/i, ctx => {
 
   let temp = [];
   for (var i = countOfProg; i < countOfProg + 5; i++) {
-    console.log(listprograms[i])
     temp.push(listprograms[i])
   }
   countOfProg += 5;
@@ -847,9 +846,19 @@ atExamEquiz.any(ctx => {
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
 
 atProgramChoose.command('', ctx => {
-  if (ctx.payload == 'ещё' && countOfProg < MAX_COUNT) {
-    ctx.enter(PROGRAM_CHOOSE);
 
+  if (listprograms.includes(ctx.payload)) {
+    user_info.program = ctx.payload;
+
+    faculties = getFaculties(user_info.program, user_info.campus);
+
+    ctx.enter(FACULTY_CHOOSE);
+    return Reply.text(ctx.payload + "? Отлично, вот список факультетов в данном направлении:\n" +
+      "Выберите интересующий вас факультет и я выведу всю известную о нём информацию", {
+        buttons: faculties.map(el => el.title)
+      });
+  }
+  if (ctx.payload == 'ещё' && countOfProg < MAX_COUNT) {
     let temp = [];
     if (MAX_COUNT - countOfProg >= 5) {
       for (let i = countOfProg; i < countOfProg + 5; i++) {
@@ -902,10 +911,6 @@ atProgramChoose.command('', ctx => {
 
 })
 atProgramChoose.command(getPrograms(user_info.campus), ctx => {
-  ///console.log(ctx.command());
-  user_info.program = ctx.data.request.command;
-
-  faculties = getFaculties(user_info.program, user_info.campus);
 
   ctx.enter(FACULTY_CHOOSE);
   return Reply.text(ctx.data.request.command + "? Отлично, вот список факультетов в данном направлении:\n" +
@@ -913,25 +918,7 @@ atProgramChoose.command(getPrograms(user_info.campus), ctx => {
       buttons: faculties.map(el => el.title)
     });
 });
-//atProgramChoose.command(getPrograms(user_info.campus), ctx => {
-//    user_info.program = ctx.data.request.command;
-//    faculties = getFaculties(user_info.program, user_info.campus);
-//    ctx.enter(FACULTY_CHOOSE);
-//    return Reply.itemsListCard("Факультеты", {
-//        header: "Отлично, вот список факультетов на данном направлении, выбери любой и я выведу список образовательных программ по нему ",
-//        items: [
-//            { title: faculties[0].title,  button: { text: faculties[0].title, payload: {} } },
-//            { title: faculties[1].title,  button: { text: faculties[1].title, payload: {} } },
-//            { title: faculties[2].title,  button: { text: faculties[2].title, payload: {} } },
-//            { title: faculties[3].title,  button: { text: faculties[3].title, payload: {} } }
-//        ],
-//        footer: {
-//            text: "ещё", button: { text: "ещё", payload: {} }
-//        },
-//        end_session: false
-//    });
 
-//});
 atProgramChoose.command(/(Назад)|(верни)|(стой)|(наверх)|(ой)/i, ctx => {
   ctx.leave();
   return Reply.text("Хотите узнать новости или информацию о поступлении?", {
@@ -963,6 +950,7 @@ atFacultyChoose.command(faculties.map(el => el.title), ctx => {
 
   chosen_one = faculties.find(val => val.title === ctx.data.request.command);
 
+
   getlist(chosen_one.href, info => {
     fs.writeFile('./data/news.json', JSON.stringify(info), (err, data) => {
       if (err)
@@ -988,32 +976,26 @@ atFacultyChoose.command(faculties.map(el => el.title), ctx => {
   });
 })
 
-atFacultyChoose.command(/(Узнать последние новости)|(давай)|(что нового)|(нов)|/i, ctx => {
+atFacultyChoose.command(/(Узнать последние новости)|(давай)|(что нового)|(нов)/i, ctx => {
   let news = fs.readFileSync('./data/news.json', 'utf-8');
   let jsonNews = JSON.parse(news);
 
-  //let format_news = "";
-
-  //for (let i = 1; i < jsonNews.length; i++) {
-  //  format_news += jsonNews[i].description + "\n"
-  //    + "ссылка: " + jsonNews[i].url + "\n\n\n";
-  //}
-  //return Reply.text(format_news);
   let items = jsonNews.map(el => ({
+    image_id: "1656841/987aad4849a6e123fb01",
     title: el.description,
+    description: el.description,
     button: {
-      text: "sometext",
+      text: "Узнать подробнее...",
       url: el.url,
       payload: {}
     }
   }
   ));
-  console.log("test");
-  ctx.leave();
+
   return Reply.itemsListCard("Новости", {
-    header: "Вот и все новости на сегодня",
-    items: items,
-  })
+    header: "Новости",
+    items: [items[0], items[1], items[2]]
+  });
 });
 
 atFacultyChoose.command(/(цен[аник])|(прайс)|(бабки)|(деньги)|(мани)|(сколько стоит)|(скидк[аи])/i, ctx => {
@@ -1029,7 +1011,7 @@ atFacultyChoose.command(/(цен[аник])|(прайс)|(бабки)|(день�
   });
 });
 
-atFacultyChoose.command("(Время обучения)|(долго)|(сколько учиться)|(время)", ctx => {
+atFacultyChoose.command(/(Время обучения)|(долго)|(сколько учиться)|(время)/i, ctx => {
   return Reply.text("Время обучения на \"" + chosen_one.title + "\": " + chosen_one.period, {
     buttons: [
       "Цена за обучение",
@@ -1061,7 +1043,7 @@ atFacultyChoose.command(/(миним)/i, ctx => {
   });
 });
 
-atFacultyChoose.command("(Количество бюджетных и платных мест)|(мест[а])|(бюджет[s[])|(плат[ка])", ctx => {
+atFacultyChoose.command(/(Количество бюджетных и платных мест)|(мест[а])|(бюджет)|(плат[ка]*)/, ctx => {
   return Reply.text(chosen_one.positions, {
     buttons: [
       "Цена за обучение",
