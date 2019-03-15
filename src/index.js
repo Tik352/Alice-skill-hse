@@ -751,26 +751,22 @@ atExamEquiz.command(/(не[ат]*)/i, ctx => {
       payload: el
     },
   }));
-  console.log();
 
-  // for (var i = 0; i < 5; i++) {
-  //     listprograms.pop()
-  // }
   ctx.enter(PROGRAM_CHOOSE);
   //let info = getPrograms(user_info.campus);
-  if(countOfProg < MAX_COUNT)
-  return Reply.itemsListCard("Направления", {
-    header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
-    items: items,
-    footer: {
-      text: "ещё",
-      button: {
+  if (countOfProg < MAX_COUNT)
+    return Reply.itemsListCard("Направления", {
+      header: "Отлично, вот список направлений, выбери любое и я выведу список образовательных программ по нему ",
+      items: items,
+      footer: {
         text: "ещё",
-        payload: "ещё"
-      }
-    },
+        button: {
+          text: "ещё",
+          payload: "ещё"
+        }
+      },
 
-  });
+    });
 });
 atExamEquiz.command('', ctx => {
   if (ctx.payload == 'ещё')
@@ -851,50 +847,57 @@ atExamEquiz.any(ctx => {
 //---------PROGRAM CHOOSE SCENE-------------------------------------------
 
 atProgramChoose.command('', ctx => {
-  if (ctx.payload == 'ещё')
+  if (ctx.payload == 'ещё' && countOfProg < MAX_COUNT) {
     ctx.enter(PROGRAM_CHOOSE);
 
-  let temp = [];
-  for (var i = countOfProg; i < countOfProg + 5; i++) {
-    temp.push(listprograms[i])
-  }
-  countOfProg += 5;
+    let temp = [];
+    if (MAX_COUNT - countOfProg >= 5) {
+      for (let i = countOfProg; i < countOfProg + 5; i++) {
+        temp.push(listprograms[i])
+      }
+      countOfProg += 5;
+    }
+    else {
+      for (let i = countOfProg; i < countOfProg + (MAX_COUNT - countOfProg); i++)
+        temp.push(listprograms[i]);
+      countOfProg += (MAX_COUNT - countOfProg);
+    }
 
-  let items = temp.map(el => ({
-    image_id: "1656841/987aad4849a6e123fb01",
-    title: el,
-    button: {
-      text: el,
-      payload: el
-    },
-  }));
-  for (var i = 0; i < 5; i++) {
-    temp.pop(listprograms[i])
-  }
-
-  let lengthprog = listprograms.length;
-  ctx.enter(PROGRAM_CHOOSE);
-  if (lengthprog == 0) {
-    return Reply.itemsListCard("Направления", {
-      header: "выбери любое и я выведу список образовательных программ по нему ",
-      items: items
-
-    });
-  }
-  else {
-    return Reply.itemsListCard("Направления", {
-      header: "выбери любое и я выведу список образовательных программ по нему ",
-      items: items,
-      footer: {
-        text: "ещё",
-        button: {
-          text: "ещё",
-          payload: "ещё"
-        }
+    let items = temp.map(el => ({
+      image_id: "1656841/987aad4849a6e123fb01",
+      title: el,
+      button: {
+        text: el,
+        payload: el
       },
+    }));
+    for (var i = 0; i < 5; i++) {
+      temp.pop(listprograms[i])
+    }
+
+    let lengthprog = listprograms.length;
+    if (lengthprog == 0) {
+      return Reply.itemsListCard("Направления", {
+        header: "выбери любое и я выведу список образовательных программ по нему ",
+        items: items
+
+      });
+    }
+    else {
+      return Reply.itemsListCard("Направления", {
+        header: "выбери любое и я выведу список образовательных программ по нему ",
+        items: items,
+        footer: {
+          text: "ещё",
+          button: {
+            text: "ещё",
+            payload: "ещё"
+          }
+        },
 
 
-    });
+      });
+    }
   }
 
 })
