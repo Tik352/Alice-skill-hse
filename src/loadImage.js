@@ -1,29 +1,17 @@
-const req = require('request');
+var needle = require("needle");
 
-//https://dialogs.yandex.net/api/v1/skills/AQAAAAAwgtSZAAT7o3rXg48cnEIHs_VwY9-QUp0/images
-//////////////////////////////AQAAAAAwgtSZAAT7o3rXg48cnEIHs_VwY9-QUp0
+var cheerio = require("cheerio");
 
-// curl -H "Authorization: OAuth AQAAAAAwgtSZAAT7o3rXg48cnEIHs_VwY9-QUp0"  -H "Content-Type: application/json"  -X POST  -d '"{ "url" : "http://umnik.hseinc.ru/images/tild3433-3532-4330-b261-653839346232__1.png" }"'   "https://dialogs.yandex.net/api/v1/skills/AQAAAAAwgtSZAAT7o3rXg48cnEIHs_VwY9-QUp0/images"
-    
-var options = {
-    host: 'https://dialogs.yandex.net',
-    path: '/api/v1/skills/AQAAAAAwgtSZAAT7o3rXg48cnEIHs_VwY9-QUp0/images',
-    method: 'POST',
-    headers: { 
-        'content-type' : 'multipart/form-data',
-        'Authorization' : 'OAuth AQAAAAAwgtSZAAT7o3rXg48cnEIHs_VwY9-QUp0'
-    },
+url = "https://www.hse.ru/ba/se/";
 
-    body: {
-        'url' : 'http://umnik.hseinc.ru/images/tild3433-3532-4330-b261-653839346232__1.png'
-    }
-}
+needle.get(url, function (err, res) {
+    if (err) throw (err);
 
-req(options, (err, resp, body) => {
-    if(err)
-        throw err;
 
-    console.log(resp.body);
-    console.log("\n\n"+body);
-})
+    var $ = cheerio.load(res.body);
 
+    let txt = $("div.js-program__side-info-group")
+        .find(".b-program__side-info")
+        .text()
+    console.log(txt);
+});
