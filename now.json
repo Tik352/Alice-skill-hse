@@ -3,9 +3,9 @@
 	"name" : "Alice-skill-hse",
 
 	"builds" : [
-		{
-			"src" : "/src/*.js",
-			"use" : "@now/node-server"
-		}
+    {
+      "src": "*.js",
+      "use": "@now/node-server"
+    }
 	]
 }
