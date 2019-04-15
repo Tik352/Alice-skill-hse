@@ -83,6 +83,7 @@ function getFaculties(city, from) {
 };
 
 
+
 function getAllFaculties() {
     let correct = [];
     for (let program_index = 0; program_index < program_discounts.programs.length; program_index++) {
@@ -634,7 +635,13 @@ atFacultyChoose.command(/(миним)/i, ctx => {
             {title:"Контакты",hide: true},
             {title:"Новости",hide: true},
             {title:"Цена за обучение",hide: true},
-            {title:"Минимальные проходные баллы",hide: true}
+            {
+                title: "Посмотреть на сайте", hide: false, url:
+                    if(chosen_one.campus_title == "Москва")
+                        myurl = dialogs.URLSforminpoints.moscow[0];
+                el.url, payload: {}
+            }
+            ]
         ]
     });
 });

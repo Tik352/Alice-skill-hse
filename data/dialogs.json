@@ -57,9 +57,61 @@
       "ещё нет"
     ]
   },
+  "URLSforminpoints": {
+    "moscow": [ "https://ba.hse.ru/minkrit2019" ],
+
+    "saint_pt": [ "https://spb.hse.ru/ba/minimum" ],
+
+    "nizniy_novg": [ "https://nnov.hse.ru/bacnn/minimal-2019" ],
+
+    "perm": [ "https://perm.hse.ru/bacalavr/minball" ]
+
+  },
+  "URLSformaxpoints": {
+    "moscow": [ "https://ba.hse.ru/result2018" ],
+
+    "saint_pt": [ "https://spb.hse.ru/ba/priemstat" ],
+
+    "nizniy_novg": [ "https://nnov.hse.ru/bacnn/statistik-18" ],
+
+    "perm": [ "https://perm.hse.ru/bacalavr/itog2018" ]
+
+  },
+  "URLSforpayment": {
+    "moscow": [ "https://ba.hse.ru/pay" ],
+
+    "saint_pt": [ "https://spb.hse.ru/ba/fee" ],
+
+    "nizniy_novg": [ "https://nnov.hse.ru/bacnn/commbak19" ],
+
+    "perm": [ "https://perm.hse.ru/bacalavr/forms_of_contracts" ]
+
+  },
+
+  "URLSfornumberofsits": {
+    "moscow": [ "https://ba.hse.ru/kolmest2019" ],
+
+    "saint_pt": [ "https://spb.hse.ru/ba/kolbak2019" ],
+
+    "nizniy_novg": [ "https://nnov.hse.ru/bacnn/kolmest2019" ],
+
+    "perm": [ "https://perm.hse.ru/bacalavr/br" ]
+
+  },
+  "URLSdeadlines": {
+    "moscow": [ "https://ba.hse.ru/entr" ],
+
+    "saint_pt": [ "https://spb.hse.ru/ba/shema" ],
+
+    "nizniy_novg": [ "https://nnov.hse.ru/bacnn/shema19" ],
+
+    "perm": [ "https://perm.hse.ru/bacalavr/submitting_documents" ]
+
+  },
 
   "choose_program": {
     "phrase_1": "Хорошо, тогда выберите одно из направлений, которые есть в выбранном кампусе"
   }
+
 
 }
